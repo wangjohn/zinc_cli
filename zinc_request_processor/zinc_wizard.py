@@ -234,8 +234,10 @@ class ZincWizard(object):
         self.print_indent("Product Subtotal: %s" % self.format_price(components["subtotal"]))
         self.print_indent("Shipping Cost:    %s" % self.format_price(components["shipping"]))
         self.print_indent("Tax:              %s" % self.format_price(components["tax"]))
-        if "gift_card" in components:
-            self.print_indent("Gift Card:        %s" % self.format_price(components["gift_card"]))
+        if "gift_certificate" in components:
+            self.print_indent("Gift Certificate: %s" % self.format_price(components["gift_certificate"]))
+        if "promotion" in components:
+            self.print_indent("Promotion:        %s" % self.format_price(components["promotion"]))
         self.print_indent("Total:            %s" % self.format_price(components["total"]))
 
     def print_indent(self, value):
