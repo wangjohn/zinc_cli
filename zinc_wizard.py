@@ -2,6 +2,30 @@ from zinc_request_processor import ZincRequestProcessor
 import sys
 import json
 
+WELCOME_BANNER = """
+ ____      ____             __                             
+|_  _|    |_  _|           [  |                            
+  \ \  /\  / /.---.  .---.  | |  .--.   _ .--..--.  .---.  
+   \ \/  \/ // /__\\/ /'`\] | |/ .'`\ \[ `.-. .-. |/ /__\\ 
+    \  /\  / | \__.,| \__.  | || \__. | | | | | | || \__., 
+     \/  \/   '.__.''.___.'[___]'.__.' [___||__||__]'.__.' 
+                                                           
+                     _________                             
+                    |  _   _  |                            
+                    |_/ | | \_|.--.                        
+                        | |  / .'`\ \                      
+                       _| |_ | \__. |                      
+                      |_____| '.__.'                       
+                                                           
+            ________   _                   _               
+           |  __   _| (_)                 | |              
+           |_/  / /   __   _ .--.   .---. | |              
+              .'.' _ [  | [ `.-. | / /'`\]| |              
+            _/ /__/ | | |  | | | | | \__. |_|              
+           |________|[___][___||__]'.___.'(_)              
+"""
+
+
 class ValidationHelpers(object):
     @classmethod
     def validateNumber(klass, maximum, minimum=0):
@@ -18,7 +42,8 @@ class ValidationHelpers(object):
 
 class ZincWizard(object):
     PROMPTS = {
-        "product_variants": "Welcome to Zinc!\nPlease please enter a product URL.",
+        "product_variants": WELCOME_BANNER + "\nPlease please enter a product URL.",
+        "product_quantity": "How many would you like to purchase?",
         "select_product_variants": "This item comes in multiple variants. Please choose an option.",
         "select_shipping_methods": "This item has multiple shipping options. Please choose one."
             }
@@ -144,7 +169,7 @@ class ZincWizard(object):
                 ValidationHelpers.validateNumber(len(descriptions)))
         chosen_product_id = product_ids[int(description_number)]
 
-        quantity = self.prompt("How many would you like to purchase?")
+        quantity = self.prompt(self.PROMPTS["product_quantity"])
         return [{
                 "product_id": chosen_product_id,
                 "quantity": quantity
@@ -155,14 +180,15 @@ class ZincWizard(object):
         shipping_ids = []
         for i in xrange(len(shipping_response["shipping_methods"])):
             current_method = shipping_response["shipping_methods"][i]
-            descriptions.append(current_method["name"] + ": " + current_method["description"])
+            descriptions.append(str(i) + ") " + current_method["name"] + \
+                    ": " + current_method["description"])
             shipping_ids.append(current_method["shipping_method_id"])
 
         prompt = self.build_prompt(self.PROMPTS["select_shipping_methods"], descriptions)
         description_number = self.prompt(prompt,
                 ValidationHelpers.validateNumber(len(descriptions)))
         chosen_id = shipping_ids[int(description_number)]
-
+        print "Chosen shipping method id: %s" % chosen_id
         return chosen_id
 
 if __name__ == '__main__':
