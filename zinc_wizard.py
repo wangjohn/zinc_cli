@@ -224,7 +224,7 @@ class ZincWizard(object):
             response_data["place_order_response"] = place_order_response
             print "HOORAY! You've successfully placed an order. Here are the details:\n"
             print "Amazon Order Id: %s" % place_order_response["merchant_order"]["merchant_order_id"]
-            print "Total Price: %s" % place_order_response["price_components"]["total"]
+            print "Total Price: %s" % self.format_price(place_order_response["price_components"]["total"])
             print place_order_response["shipping_method"]["name"] + ": " + place_order_response["shipping_method"]["description"]
 
     def print_price_components(self, response_data):
