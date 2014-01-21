@@ -53,19 +53,46 @@ class ZincWizard(object):
         "select_shipping_methods": "This item has multiple shipping options. Please choose an option.",
         "security_code": "Please enter the CVV security code on your credit card.",
         "place_order": "Would you like to place this order? (y)/n",
-        "gift": "Do you want this to be shipped as a gift? (y)/n"
+        "gift": "Do you want this to be shipped as a gift? (y)/n",
+        "shipping_address": {
+            "start_message": "\nNow we'd like to get your shipping information.",
+            "end_message": "\nYou've finished entering your shipping address!"
+            }
+        "address": {
+            "first_name": "Please input your first name:",
+            "last_name": "Please input your last name:",
+            "address_line1": "Please input the first line of your shipping address:",
+            "address_line2": "Please input the second line of your shipping address: (optional)",
+            "city": "Please input your city:",
+            "state": "Please input your state (e.g. CA or IL):",
+            "zip_code": "Please input your zip code:",
+            "country": "Please input your country (e.g. US):",
+            }
+        "billing_address" : {
+            "start_message": "\nIs your billing address the same as your shipping address? (y)/n",
+            "end_message": "\nYou've finished entering you billing address!"
+            }
+        "credit_card": {
+            "start_message": "\nNow we'd like to get your credit card information.",
+            "number": "Please input your credit card number",
+            "expiration_month": "Please input your credit card expiration month",
+            "expiration_year": "Please input your credit card expiration year",
+            "security_code": "Please input the CVV security code from your credit card",
+            "end_message": "\nYou've finished entering your credit card information!"
+            }
         }
 
     def __init__(self, options = None):
         self.options = (options if options is not None else {})
+        self.response_data = {}
+        self.security_code = None
 
     def start(self):
-        response_data = {}
-        self.get_product_variants(response_data)
-        self.get_shipping_methods(response_data)
-        self.get_store_card(response_data)
-        self.get_review_order(response_data)
-        self.get_place_order(response_data)
+        self.get_product_variants(self.response_data)
+        self.get_shipping_methods(self.response_data)
+        self.get_store_card(self.response_data)
+        self.get_review_order(self.response_data)
+        self.get_place_order(self.response_data)
 
     def prompt(self, prompt, validation=None, max_attempts=3):
         attempts = 0
@@ -171,12 +198,47 @@ class ZincWizard(object):
         return gift_result == "y" or gift_result == ""
 
     def get_security_code(self):
+        if self.security_code != None:
+            return self.security_code
         return self.prompt(self.PROMPTS["security_code"])
 
     def load_file_contents(self, filetype):
         if filetype in self.options and self.options[filetype] != None:
             with open(self.options[filetype], 'rb') as f:
                 return json.loads(f.read())
+        elif filetype == "shipping_address":
+            print self.PROMPTS[filetype]["start_message"]
+            address = self.get_address()
+            print self.PROMPTS[filetype]["end_message"]
+            return address
+        elif filetype == "billing_address":
+            input_value = self.prompt(self.PROMPTS[filetype]["start_message"]).strip()
+            use_shipping = (input_value == "y" or input_value == "")
+            if use_shipping:
+                return self.response_data["shipping_address"]
+            else:
+                address = self.get_address()
+                print self.PROMPTS[filetype]["end_message"]
+                return address
+        elif filetype == "credit_card":
+            return self.get_credit_card_information()
+
+    def get_credit_card_information(self):
+        print self.PROMPTS[filetype]["start_message"]
+        response = {}
+        response["number"] = self.prompt(self.PROMPTS[filetype]["number"])
+        response["expiration_month"] = self.prompt(self.PROMPTS[filetype]["expiration_month"])
+        response["expriation_year"] = self.prompt(self.PROMPTS[filetype]["expiration_year"])
+        self.security_code = self.prompt(self.PROMPTS[filetype]["security_code"])
+        print self.PROMPTS[filetype]["end_message"]
+        return response
+
+    def get_address(self):
+        address = {}
+        for label in ["first_name", "last_name", "address_line1", "address_line2",
+                "city", "state", "zip_code", "country"]:
+            address[label] = self.prompt(self.PROMPTS[label])
+        return address
 
     def build_prompt(self, base_prompt, description_list):
         prompt = base_prompt + "\n"
