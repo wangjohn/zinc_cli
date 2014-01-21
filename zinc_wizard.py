@@ -23,6 +23,7 @@ WELCOME_BANNER = """
               .'.' _ [  | [ `.-. | / /'`\]| |              
             _/ /__/ | | |  | | | | | \__. |_|              
            |________|[___][___||__]'.___.'(_)              
+
 """
 
 
@@ -66,7 +67,7 @@ class ValidationHelpers(object):
 
 class ZincWizard(object):
     PROMPTS = {
-        "product_variants": WELCOME_BANNER + "\nPlease please enter a product URL.",
+        "product_variants": "Please please enter a product URL.",
         "product_quantity": "How many would you like to purchase? (Default: 1)",
         "select_product_variants": "This item comes in multiple variants. Please choose an option.",
         "select_shipping_methods": "This item has multiple shipping options. Please choose an option.",
@@ -124,6 +125,7 @@ class ZincWizard(object):
         self.gift = gift
 
     def start(self):
+        print WELCOME_BANNER
         self.get_product_variants(self.response_data)
         self.get_shipping_methods(self.response_data)
         self.get_store_card(self.response_data)
