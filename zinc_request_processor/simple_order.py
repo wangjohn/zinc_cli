@@ -74,6 +74,25 @@ class ZincSimpleOrder(object):
 
 
     def shipping_method_id(self, order_details, shipping_methods_response):
-        pass
+        return ShippingMethodFactory.shipping_method(
+                order_details["shipping_preference"], shipping_methods_response)
 
+class ShippingMethodFactory(object):
+    @classmethod
+    def shipping_method(klass, shipping_preference, shipping_methods_response):
+        if hasattr(klass, shipping_preference):
+            return getattr(klass, shipping_preference)(shipping_methods_response)
+        else:
+            raise TypeError("The shipping preference '%s' is not supported." % shipping_preference)
 
+    @classmethod
+    def cheapest(klass, shipping_methods_response):
+        minimum = (None, None)
+        for method in shipping_methods_response["shipping_methods"]:
+            if minimum[0] == None or method["price"] < minimum[0]:
+                minimum = (method["price"], method["shipping_method_id"])
+
+        if minimum[0] == None:
+            return shipping_methods-response["shipping_methods"][0]["shipping_method_id"]
+        else:
+            return minimum[1]
