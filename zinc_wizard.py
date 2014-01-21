@@ -12,6 +12,10 @@ class ValidationHelpers(object):
                 print "You must enter a number between %s and %s\n" % (minimum, maximum)
         return validate
 
+    @classmethod
+    def validateBoolean(klass):
+        pass
+
 class ZincWizard(object):
     PROMPTS = {
         "product_variants": "Welcome to Zinc!\nPlease please enter a product URL.",
@@ -28,6 +32,7 @@ class ZincWizard(object):
         self.get_shipping_methods(response_data)
         self.get_store_card(response_data)
         self.get_review_order(response_data)
+        self.get_place_order(response_data)
 
     def prompt(self, prompt, validation=None, max_attempts=3):
         attempts = 0
@@ -100,6 +105,7 @@ class ZincWizard(object):
         response_data["review_order_response"] = review_order_response
 
     def get_place_order(self, response_data):
+        self.prompt(self.PROMPT["place_order"])
         place_order_resonse = ZincRequestProcessor.process("place_order", {
                     "client_token": self.options["client_token"],
                     "place_order_key": response_data["review_order_response"]["place_order_key"]
