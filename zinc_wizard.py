@@ -46,7 +46,7 @@ class ValidationHelpers(object):
         return validate
 
     @classmethod
-    def valid_credit_card(klass):
+    def validate_credit_card(klass):
         def validate(card_number):
             digit_sum = 0
             num_digits = len(card_number)
@@ -283,7 +283,7 @@ class ZincWizard(object):
             print self.PROMPTS[filetype]["end_message"]
             return address
         else:
-            self.get_address(filetype)
+            return self.get_address(filetype)
 
     def build_prompt(self, base_prompt, description_list):
         prompt = base_prompt + "\n"
@@ -307,7 +307,7 @@ class ZincWizard(object):
             prompt = self.build_prompt(self.PROMPTS["select_product_variants"], descriptions)
 
             description_number = self.prompt(prompt, 
-                    ValidationHelpers.validate_number(len(descriptions)))
+                    ValidationHelpers.validate_number(len(descriptions)-1))
             chosen_product_id = product_ids[int(description_number)]
         else:
             chosen_product_id = variants_response["variant_options"][0]["product_id"]
@@ -345,7 +345,7 @@ class ZincWizard(object):
 
         prompt = self.build_prompt(self.PROMPTS["select_shipping_methods"], descriptions)
         description_number = self.prompt(prompt,
-                ValidationHelpers.validate_number(len(descriptions)))
+                ValidationHelpers.validate_number(len(descriptions)-1))
         chosen_id = shipping_ids[int(description_number)]
         return chosen_id
 
