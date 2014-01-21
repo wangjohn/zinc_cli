@@ -1,4 +1,3 @@
-zinc_purchase -t simple_order -d '
 {
   "client_token": "public",
   "retailer": "amazon",
@@ -33,4 +32,4 @@ zinc_purchase -t simple_order -d '
     "state": "MA",
     "country": "US"
   }
-}'
+}

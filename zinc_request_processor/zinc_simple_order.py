@@ -1,4 +1,5 @@
 from zinc_request_processor import ZincAbstractProcessor
+import json
 
 class ZincSimpleOrder(object):
     def __init__(self,
@@ -18,37 +19,44 @@ class ZincSimpleOrder(object):
                 get_request_retries=get_request_retries)
 
     def process(self, order_details):
-        return self.process_helper(order_details, self.max_tries)
+        return self._process_helper(order_details, self.max_tries)
 
-    def process_helper(self, order_details, tries):
+    def process_json(self, json_order_details):
+        return self.process(json.loads(json_order_details))
+
+    def process_file(self, filename):
+        with open(filename, 'rb') as f:
+            return self.process_json(f.read())
+
+    def _process_helper(self, order_details, tries):
         if tries > 0:
             try:
                 shipping_methods_response = self.processor("shipping_methods",
-                        self.shipping_methods_details(order_details))
+                        self._shipping_methods_details(order_details))
                 store_card_response = self.processor("store_card",
-                        self.store_card_details(order_details))
-                review_order_response = self.processor("review_order", self.review_order_details(
+                        self._store_card_details(order_details))
+                review_order_response = self.processor("review_order", self._review_order_details(
                     order_details, shipping_methods_response, store_card_response))
             except Exception:
-                return self.process_helper(order_details, tries-1)
+                return self._process_helper(order_details, tries-1)
 
             # We don't want to retry on place order requests, in case we accidentally
             # place multiple orders.
             place_order_response = self.processor("place_order",
-                    self.place_order_details(order_details, review_order_response))
+                    self._place_order_details(order_details, review_order_response))
             return place_order_response
         else:
             raise Exception("Maximum tries exceed: unable to place Zinc order")
 
-    def shipping_methods_details(self, order_details):
+    def _shipping_methods_details(self, order_details):
         return {
                 "client_token": order_details["client_token"],
                 "retailer": order_details["retailer"]
                 "shipping_address": order_details["shipping_address"],
-                "products": self.products(order_details)
+                "products": self._products(order_details)
                 }
 
-    def store_card_details(self, order_details):
+    def _store_card_details(self, order_details):
         return {
                 "client_token": order_details["client_token"],
                 "billing_address": order_details["billing_address"],
@@ -57,15 +65,15 @@ class ZincSimpleOrder(object):
                 "expiration_year": order_details["payment_method"]["expiration_year"]
                 }
 
-    def review_order_details(self, order_details, shipping_methods_response,
+    def _review_order_details(self, order_details, shipping_methods_response,
             store_card_response):
         return {
                 "client_token": order_details["client_token"],
                 "retailer": order_details["retailer"],
-                "products": self.products(order_details),
+                "products": self._products(order_details),
                 "shipping_address": order_details["shipping_address"],
                 "is_gift": order_details["is_gift"],
-                "shipping_method_id": self.shipping_method_id(order_details,
+                "shipping_method_id": self._shipping_method_id(order_details,
                     shipping_methods_response),
                 "payment_method": {
                     "security_code": order_details["payment_method"]["security_code"],
@@ -74,20 +82,20 @@ class ZincSimpleOrder(object):
                 "customer_email": order_details["customer_email"]
                 }
 
-    def place_order_details(self, order_details, review_order_response):
+    def _place_order_details(self, order_details, review_order_response):
         return {
                 "client_token": order_details["client_token"],
                 "place_order_key": review_order_response["place_order_key"]
                 }
 
-    def products(self, order_details):
+    def _products(self, order_details):
         return [{
             "product_id": order_details["product_id"],
             "quantity": order_details["quantity"]
             }]
 
 
-    def shipping_method_id(self, order_details, shipping_methods_response):
+    def _shipping_method_id(self, order_details, shipping_methods_response):
         return ShippingMethodFactory.shipping_method(
                 order_details["shipping_preference"], shipping_methods_response)
 
