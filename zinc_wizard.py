@@ -38,15 +38,24 @@ class ValidationHelpers(object):
 
     @classmethod
     def validateBoolean(klass):
-        pass
+        def validate(x):
+            if (x == "y" or x == "n"):
+                return True
+            else:
+                print "You must enter either 'y' or 'n'"
+        return validate
 
 class ZincWizard(object):
     PROMPTS = {
         "product_variants": WELCOME_BANNER + "\nPlease please enter a product URL.",
         "product_quantity": "How many would you like to purchase?",
         "select_product_variants": "This item comes in multiple variants. Please choose an option.",
-        "select_shipping_methods": "This item has multiple shipping options. Please choose one."
-            }
+        "select_shipping_methods": "This item has multiple shipping options. Please choose an option.",
+        "security_code": "Please enter the CVV security code on your credit card.",
+        "place_order": "Would you like to place this order? (y)/n",
+        "gift": "Do you want this to be shipped as a gift? (y)/n",
+        "email": "What's the email address you want to use for the confirmation?",
+        }
 
     def __init__(self, options = None):
         self.options = (options if options is not None else {})
@@ -121,10 +130,10 @@ class ZincWizard(object):
                     "retailer": self.options["retailer"],
                     "products": response_data["products"],
                     "shipping_address": response_data["shipping_address"],
-                    "is_gift": self.options["gift"],
+                    "is_gift": self.get_is_gift(),
                     "shipping_method_id": response_data["shipping_method_id"],
                     "payment_method": payment_method,
-                    "customer_email": self.options["email"]
+                    "customer_email": self.get_email()
                 })
 
         response_data["review_order_response"] = review_order_response
@@ -138,9 +147,19 @@ class ZincWizard(object):
 
         response_data["place_order_response"] = place_order_response
 
+    def get_email(self):
+        if "email" in self.options:
+            return self.options["email"]
+        return self.prompt(self.PROMPTS["email"])
+
+    def get_is_gift(self):
+        if "gift" in self.options:
+            return self.options["gift"]
+        gift_result = self.prompt(self.PROMPTS["gift"]).strip()
+        return gift_result == "y" or gift_result == ""
+
     def get_security_code(self):
-        # FIXME: do it
-        return "123"
+        return self.prompt(self.PROMPTS["security_code"])
 
     def load_file_contents(self, filetype):
         if filetype in self.options:
@@ -188,11 +207,12 @@ class ZincWizard(object):
         description_number = self.prompt(prompt,
                 ValidationHelpers.validateNumber(len(descriptions)))
         chosen_id = shipping_ids[int(description_number)]
-        print "Chosen shipping method id: %s" % chosen_id
         return chosen_id
 
 if __name__ == '__main__':
     ZincWizard({'retailer': 'amazon',
         'client_token': 'public',
-        'shipping_address': "examples/shipping_address.json"
+        'shipping_address': "examples/shipping_address.json",
+        'billing_address': "examples/shipping_address.json",
+        'credit_card': "examples/credit_card.json"
         }).start()
