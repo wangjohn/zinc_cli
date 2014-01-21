@@ -139,13 +139,27 @@ class ZincWizard(object):
         response_data["review_order_response"] = review_order_response
 
     def get_place_order(self, response_data):
-        self.prompt(self.PROMPT["place_order"])
-        place_order_resonse = ZincRequestProcessor.process("place_order", {
-                    "client_token": self.options["client_token"],
-                    "place_order_key": response_data["review_order_response"]["place_order_key"]
-                })
+        self.print_price_components(response_data)
+        should_place = self.prompt(self.PROMPTS["place_order"]).strip()
+        if (should_place == "y" or should_place == ""):
+            place_order_resonse = ZincRequestProcessor.process("place_order", {
+                        "client_token": self.options["client_token"],
+                        "place_order_key": response_data["review_order_response"]["place_order_key"]
+                    })
 
-        response_data["place_order_response"] = place_order_response
+            response_data["place_order_response"] = place_order_response
+            print "HOORAY! You've successfully placed an order. Here are the details:\n"
+            print "Amazon Order Id: %s" % place_order_response["merchant_order"]["merchant_order_id"]
+            print "Total Price: %s" % place_order_response["price_components"]["total"]
+            print place_order_response["shipping_method"]["name"] + ": " + place_order_response["shipping_method"]["description"]
+
+    def print_price_components(self, response_data):
+        components = response_data["review_order_response"]["price_components"]
+        print "Product Subtotal: %s" % components["subtotal"]
+        print "Shipping Cost:    %s" % components["shipping"]
+        print "Tax:              %s" % components["tax"]
+        print "Gift Card:        %s" % components["gift_card"]
+        print "Total:            %s" % components["total"]
 
     def get_email(self):
         if "email" in self.options:
