@@ -45,6 +45,25 @@ class ValidationHelpers(object):
                 print "You must enter either 'y' or 'n'"
         return validate
 
+    @classmethod
+    def valid_credit_card(klass):
+        def validate(card_number):
+            digit_sum = 0
+            num_digits = len(card_number)
+            oddeven = num_digits & 1
+            for count in range(0, num_digits):
+                digit = int(card_number[count])
+            if not (( count & 1 ) ^ oddeven ):
+                digit = digit * 2
+            if digit > 9:
+                digit = digit - 9
+            digit_sum += digit
+            if ( (digit_sum % 10) == 0 ):
+                return True
+            else:
+                print "Invalid credit card number"
+        return validate
+
 class ZincWizard(object):
     PROMPTS = {
         "product_variants": WELCOME_BANNER + "\nPlease please enter a product URL.",
@@ -236,9 +255,12 @@ class ZincWizard(object):
     def get_credit_card_information(self):
         print self.PROMPTS["credit_card"]["start_message"]
         response = {}
-        response["number"] = self.prompt(self.PROMPTS["credit_card"]["number"])
-        response["expiration_month"] = self.prompt(self.PROMPTS["credit_card"]["expiration_month"])
-        response["expiration_year"] = self.prompt(self.PROMPTS["credit_card"]["expiration_year"])
+        response["number"] = self.prompt(self.PROMPTS["credit_card"]["number"],
+                ValidationHelpers.validate_credit_card())
+        response["expiration_month"] = self.prompt(self.PROMPTS["credit_card"]["expiration_month"],
+                ValidationHelpers.validate_number(12, 1))
+        response["expiration_year"] = self.prompt(self.PROMPTS["credit_card"]["expiration_year"],
+                ValidationHelpers.validate_number(2100, 2010))
         self.security_code = self.prompt(self.PROMPTS["credit_card"]["security_code"])
         print self.PROMPTS["credit_card"]["end_message"]
         return response
