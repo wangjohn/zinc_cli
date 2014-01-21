@@ -21,9 +21,6 @@ parser.add_argument("-t", "--credit_card_token", help="A token to use to access 
 parser.add_argument("-ba", "--billing_address", help="The file where you've stored your billing address information",
         default=None,
         action='store_true')
-parser.add_argument("-e", "--email", help="Your email address",
-        default=None,
-        action='store_true')
 parser.add_argument("-g", "--gift", help="Send the item as a gift",
         default=False,
         action='store_true')
@@ -42,7 +39,6 @@ options = {
         "credit_card": args.credit_card,
         "credit_card_token": args.credit_card_token,
         "billing_address": args.billing_address,
-        "email": args.email,
         "gift": args.gift,
         "client_token": args.client_token
         }

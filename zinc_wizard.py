@@ -48,13 +48,12 @@ class ValidationHelpers(object):
 class ZincWizard(object):
     PROMPTS = {
         "product_variants": WELCOME_BANNER + "\nPlease please enter a product URL.",
-        "product_quantity": "How many would you like to purchase?",
+        "product_quantity": "How many would you like to purchase? (Default: 1)",
         "select_product_variants": "This item comes in multiple variants. Please choose an option.",
         "select_shipping_methods": "This item has multiple shipping options. Please choose an option.",
         "security_code": "Please enter the CVV security code on your credit card.",
         "place_order": "Would you like to place this order? (y)/n",
-        "gift": "Do you want this to be shipped as a gift? (y)/n",
-        "email": "What's the email address you want to use for the confirmation?",
+        "gift": "Do you want this to be shipped as a gift? (y)/n"
         }
 
     def __init__(self, options = None):
@@ -108,7 +107,7 @@ class ZincWizard(object):
         response_data["shipping_method_id"] = self.select_shipping_methods(shipping_response)
 
     def get_store_card(self, response_data):
-        if "cc_token" in self.options["cc_token"] and self.options["cc_token"] != None:
+        if "cc_token" in self.options and self.options["cc_token"] != None:
             response_data["cc_token"] = self.options["cc_token"]
         else:
             cc_data = self.load_file_contents("credit_card")
@@ -137,7 +136,7 @@ class ZincWizard(object):
                     "is_gift": self.get_is_gift(),
                     "shipping_method_id": response_data["shipping_method_id"],
                     "payment_method": payment_method,
-                    "customer_email": self.get_email()
+                    "customer_email": ""
                 })
 
         response_data["review_order_response"] = review_order_response
@@ -164,11 +163,6 @@ class ZincWizard(object):
         print "Tax:              %s" % components["tax"]
         print "Gift Card:        %s" % components["gift_card"]
         print "Total:            %s" % components["total"]
-
-    def get_email(self):
-        if "email" in self.options and self.options["email"] != None:
-            return self.options["email"]
-        return self.prompt(self.PROMPTS["email"])
 
     def get_is_gift(self):
         if "gift" in self.options:
@@ -197,6 +191,8 @@ class ZincWizard(object):
             current_option = variants_response["variant_options"][i]
             for dimension in current_option["dimensions"]:
                 current_descriptions_list.append(dimension["name"] + ": " + dimension["value"])
+            if "price" in current_option:
+                current_descriptions_list.append("Price: " + current_option["price"])
             product_ids.append(current_option["product_id"])
             descriptions.append(str(i) + ") " + ", ".join(current_descriptions_list))
 
@@ -206,11 +202,18 @@ class ZincWizard(object):
                 ValidationHelpers.validateNumber(len(descriptions)))
         chosen_product_id = product_ids[int(description_number)]
 
-        quantity = self.prompt(self.PROMPTS["product_quantity"])
+        quantity = self.get_quantity()
         return [{
                 "product_id": chosen_product_id,
                 "quantity": quantity
                 }]
+
+    def get_quantity(self):
+        quantity = self.prompt(self.PROMPTS["product_quantity"]).strip()
+        if quantity == "":
+            return 1
+        else:
+            return quantity
 
     def select_shipping_methods(self, shipping_response):
         descriptions = []
