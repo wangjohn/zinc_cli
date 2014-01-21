@@ -165,13 +165,14 @@ class ZincWizard(object):
                 "cc_token": response_data["cc_token"],
                 "security_code": self.get_security_code()
                 }
+        is_gift = self.get_is_gift()
         print "\nProcessing request...\n"
         review_order_response = ZincRequestProcessor.process("review_order", {
                     "client_token": self.options["client_token"],
                     "retailer": self.options["retailer"],
                     "products": response_data["products"],
                     "shipping_address": response_data["shipping_address"],
-                    "is_gift": self.get_is_gift(),
+                    "is_gift": is_gift,
                     "shipping_method_id": response_data["shipping_method_id"],
                     "payment_method": payment_method,
                     "customer_email": "support@zinc.io"
@@ -295,6 +296,7 @@ class ZincWizard(object):
                 }]
 
     def format_price(self, price):
+        price = str(price)
         if len(price) > 2:
             return "$" + price[:(-2)] + "." + price[(-2):]
         elif len(price) == 2:
