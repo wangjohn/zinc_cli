@@ -3,11 +3,13 @@ from zinc_request_processor import ZincAbstractProcessor
 class ZincSimpleOrder(object):
     def __init__(self,
             zinc_base_url="https://api.zinc.io/v0",
+            max_tries = 3,
             polling_interval= 1.0,
             request_timeout = 180,
             get_request_timeout = 5.0,
             post_request_timeout = 10.0,
             get_request_retries = 3):
+        self.max_tries = max_tries
         self.processor = ZincAbstractProcessor(zinc_base_url=zinc_base_url,
                 polling_interval=polling_interval,
                 request_timeout=request_timeout,
@@ -16,15 +18,27 @@ class ZincSimpleOrder(object):
                 get_request_retries=get_request_retries)
 
     def process(self, order_details):
-        shipping_methods_response = self.processor("shipping_methods", 
-                self.shipping_methods_details(order_details))
-        store_card_response = self.processor("store_card",
-                self.store_card_details(order_details))
-        review_order_response = self.processor("review_order", self.review_order_details(
-            order_details, shipping_methods_response, store_card_response))
-        place_order_response = self.processor("place_order",
-                self.place_order_details(order_details, review_order_response))
-        return place_order_response
+        return self.process_helper(order_details, self.max_tries)
+
+    def process_helper(self, order_details, tries):
+        if tries > 0:
+            try:
+                shipping_methods_response = self.processor("shipping_methods",
+                        self.shipping_methods_details(order_details))
+                store_card_response = self.processor("store_card",
+                        self.store_card_details(order_details))
+                review_order_response = self.processor("review_order", self.review_order_details(
+                    order_details, shipping_methods_response, store_card_response))
+            except Exception:
+                return self.process_helper(order_details, tries-1)
+
+            # We don't want to retry on place order requests, in case we accidentally
+            # place multiple orders.
+            place_order_response = self.processor("place_order",
+                    self.place_order_details(order_details, review_order_response))
+            return place_order_response
+        else:
+            raise Exception("Maximum tries exceed: unable to place Zinc order")
 
     def shipping_methods_details(self, order_details):
         return {
