@@ -163,7 +163,7 @@ class ZincWizard(object):
                     "is_gift": self.get_is_gift(),
                     "shipping_method_id": response_data["shipping_method_id"],
                     "payment_method": payment_method,
-                    "customer_email": ""
+                    "customer_email": "support@zinc.io"
                 })
 
         response_data["review_order_response"] = review_order_response
@@ -224,20 +224,20 @@ class ZincWizard(object):
             return self.get_credit_card_information()
 
     def get_credit_card_information(self):
-        print self.PROMPTS[filetype]["start_message"]
+        print self.PROMPTS["credit_card"]["start_message"]
         response = {}
-        response["number"] = self.prompt(self.PROMPTS[filetype]["number"])
-        response["expiration_month"] = self.prompt(self.PROMPTS[filetype]["expiration_month"])
-        response["expriation_year"] = self.prompt(self.PROMPTS[filetype]["expiration_year"])
-        self.security_code = self.prompt(self.PROMPTS[filetype]["security_code"])
-        print self.PROMPTS[filetype]["end_message"]
+        response["number"] = self.prompt(self.PROMPTS["credit_card"]["number"])
+        response["expiration_month"] = self.prompt(self.PROMPTS["credit_card"]["expiration_month"])
+        response["expriation_year"] = self.prompt(self.PROMPTS["credit_card"]["expiration_year"])
+        self.security_code = self.prompt(self.PROMPTS["credit_card"]["security_code"])
+        print self.PROMPTS["credit_card"]["end_message"]
         return response
 
     def get_address(self):
         address = {}
         for label in ["first_name", "last_name", "address_line1", "address_line2",
                 "city", "state", "zip_code", "country"]:
-            address[label] = self.prompt(self.PROMPTS[label])
+            address[label] = self.prompt(self.PROMPTS["address"][label])
         return address
 
     def build_prompt(self, base_prompt, description_list):
@@ -303,7 +303,7 @@ class ZincWizard(object):
 if __name__ == '__main__':
     ZincWizard({'retailer': 'amazon',
         'client_token': 'public',
-        'shipping_address': "examples/shipping_address.json",
-        'billing_address': "examples/shipping_address.json",
-        'credit_card': "examples/credit_card.json"
+        #'shipping_address': "examples/shipping_address.json",
+        #'billing_address': "examples/shipping_address.json",
+        #'credit_card': "examples/credit_card.json"
         }).start()
