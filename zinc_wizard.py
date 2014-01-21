@@ -204,7 +204,7 @@ class ZincWizard(object):
         self.print_price_components(response_data)
         if self.prompt_boolean(self.PROMPTS["place_order"]):
             print "\nProcessing request...\n"
-            place_order_resonse = ZincRequestProcessor.process("place_order", {
+            place_order_response = ZincRequestProcessor.process("place_order", {
                         "client_token": self.options["client_token"],
                         "place_order_key": response_data["review_order_response"]["place_order_key"]
                     })
