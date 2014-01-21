@@ -147,11 +147,12 @@ class ZincWizard(object):
             response_data["cc_token"] = self.options["cc_token"]
         else:
             cc_data = self.load_file_contents("credit_card")
+            billing_address = self.load_file_contents("billing_address")
             print "\nProcessing request...\n"
             store_card_response = ZincRequestProcessor.process("store_card", {
                         "client_token": self.options["client_token"],
                         "retailer": self.options["retailer"],
-                        "billing_address": self.load_file_contents("billing_address"),
+                        "billing_address": billing_address,
                         "number": cc_data["number"],
                         "expiration_month": cc_data["expiration_month"],
                         "expiration_year": cc_data["expiration_year"]
