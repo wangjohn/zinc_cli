@@ -108,21 +108,25 @@ class ZincWizard(object):
         response_data["shipping_method_id"] = self.select_shipping_methods(shipping_response)
 
     def get_store_card(self, response_data):
-        cc_data = self.load_file_contents("credit_card")
-        store_card_response = ZincRequestProcessor.process("store_card", {
-                    "client_token": self.options["client_token"],
-                    "retailer": self.options["retailer"],
-                    "billing_address": self.load_file_contents("billing_address"),
-                    "number": cc_data["number"],
-                    "expiration_month": cc_data["expiration_month"],
-                    "expiration_year": cc_data["expiration_year"]
-                })
+        if "cc_token" in self.options["cc_token"] and self.options["cc_token"] != None:
+            response_data["cc_token"] = self.options["cc_token"]
+        else:
+            cc_data = self.load_file_contents("credit_card")
+            store_card_response = ZincRequestProcessor.process("store_card", {
+                        "client_token": self.options["client_token"],
+                        "retailer": self.options["retailer"],
+                        "billing_address": self.load_file_contents("billing_address"),
+                        "number": cc_data["number"],
+                        "expiration_month": cc_data["expiration_month"],
+                        "expiration_year": cc_data["expiration_year"]
+                    })
 
-        response_data["store_card_response"] = store_card_response
+            response_data["store_card_response"] = store_card_response
+            response_data["cc_token"] = store_card_response["cc_token"]
 
     def get_review_order(self, response_data):
         payment_method = {
-                "cc_token": response_data["store_card_response"]["cc_token"],
+                "cc_token": response_data["cc_token"],
                 "security_code": self.get_security_code()
                 }
         review_order_response = ZincRequestProcessor.process("review_order", {
@@ -162,7 +166,7 @@ class ZincWizard(object):
         print "Total:            %s" % components["total"]
 
     def get_email(self):
-        if "email" in self.options:
+        if "email" in self.options and self.options["email"] != None:
             return self.options["email"]
         return self.prompt(self.PROMPTS["email"])
 
@@ -176,7 +180,7 @@ class ZincWizard(object):
         return self.prompt(self.PROMPTS["security_code"])
 
     def load_file_contents(self, filetype):
-        if filetype in self.options:
+        if filetype in self.options and self.options[filetype] != None:
             with open(self.options[filetype], 'rb') as f:
                 return json.loads(f.read())
 
