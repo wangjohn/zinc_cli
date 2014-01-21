@@ -28,7 +28,7 @@ WELCOME_BANNER = """
 
 class ValidationHelpers(object):
     @classmethod
-    def validateNumber(klass, maximum, minimum=0):
+    def validate_number(klass, maximum, minimum=0):
         def validate(x):
             if (int(x) <= maximum and int(x) >= minimum):
                 return True
@@ -37,7 +37,7 @@ class ValidationHelpers(object):
         return validate
 
     @classmethod
-    def validateBoolean(klass):
+    def validate_boolean(klass):
         def validate(x):
             if (x == "y" or x == "n"):
                 return True
@@ -67,6 +67,7 @@ class ZincWizard(object):
             "state": "Please input your state (e.g. CA or IL):",
             "zip_code": "Please input your zip code:",
             "country": "Please input your country (e.g. US):",
+            "confirmation_message": "Is this your correct shipping address? (y)/n"
             },
         "billing_address" : {
             "start_message": "\nIs your billing address the same as your shipping address? (y)/n",
@@ -75,8 +76,8 @@ class ZincWizard(object):
         "credit_card": {
             "start_message": "\nNow we'd like to get your credit card information.",
             "number": "Please input your credit card number",
-            "expiration_month": "Please input your credit card expiration month",
-            "expiration_year": "Please input your credit card expiration year",
+            "expiration_month": "Please input your credit card expiration month (e.g. 03)",
+            "expiration_year": "Please input your credit card expiration year (e.g. 2017)",
             "security_code": "Please input the CVV security code from your credit card",
             "end_message": "\nYou've finished entering your credit card information!"
             }
@@ -105,6 +106,12 @@ class ZincWizard(object):
                 if attempts >= max_attempts:
                     print "You've reached the maximum number of attempts. Exiting!"
                     sys.exit()
+
+    def prompt_boolean(self, prompt):
+        result = self.prompt(prompt, ValidationHelpers.validate_boolean).strip()
+        if (result == "y" or result == ""):
+            return True
+        return False
 
     def get_product_variants(self, response_data):
         if "product_url" in self.options:
@@ -170,8 +177,7 @@ class ZincWizard(object):
 
     def get_place_order(self, response_data):
         self.print_price_components(response_data)
-        should_place = self.prompt(self.PROMPTS["place_order"]).strip()
-        if (should_place == "y" or should_place == ""):
+        if self.prompt_boolean(self.PROMPTS["place_order"]):
             place_order_resonse = ZincRequestProcessor.process("place_order", {
                         "client_token": self.options["client_token"],
                         "place_order_key": response_data["review_order_response"]["place_order_key"]
@@ -194,8 +200,7 @@ class ZincWizard(object):
     def get_is_gift(self):
         if "gift" in self.options:
             return self.options["gift"]
-        gift_result = self.prompt(self.PROMPTS["gift"]).strip()
-        return gift_result == "y" or gift_result == ""
+        return self.prompt_boolean(self.PROMPTS["gift"])
 
     def get_security_code(self):
         if self.security_code != None:
@@ -208,18 +213,12 @@ class ZincWizard(object):
                 return json.loads(f.read())
         elif filetype == "shipping_address":
             print self.PROMPTS[filetype]["start_message"]
-            address = self.get_address()
-            print self.PROMPTS[filetype]["end_message"]
-            return address
+            return self.get_address(filetype)
         elif filetype == "billing_address":
-            input_value = self.prompt(self.PROMPTS[filetype]["start_message"]).strip()
-            use_shipping = (input_value == "y" or input_value == "")
-            if use_shipping:
+            if self.prompt_boolean(self.PROMPTS[filetype]["start_message"]):
                 return self.response_data["shipping_address"]
             else:
-                address = self.get_address()
-                print self.PROMPTS[filetype]["end_message"]
-                return address
+                return self.get_address(filetype)
         elif filetype == "credit_card":
             return self.get_credit_card_information()
 
@@ -228,17 +227,29 @@ class ZincWizard(object):
         response = {}
         response["number"] = self.prompt(self.PROMPTS["credit_card"]["number"])
         response["expiration_month"] = self.prompt(self.PROMPTS["credit_card"]["expiration_month"])
-        response["expriation_year"] = self.prompt(self.PROMPTS["credit_card"]["expiration_year"])
+        response["expiration_year"] = self.prompt(self.PROMPTS["credit_card"]["expiration_year"])
         self.security_code = self.prompt(self.PROMPTS["credit_card"]["security_code"])
         print self.PROMPTS["credit_card"]["end_message"]
         return response
 
-    def get_address(self):
+    def get_address(self, filetype):
         address = {}
         for label in ["first_name", "last_name", "address_line1", "address_line2",
                 "city", "state", "zip_code", "country"]:
             address[label] = self.prompt(self.PROMPTS["address"][label])
-        return address
+
+        print "\nYour typed the following:\n"
+        print address["first_name"], address["last_name"]
+        print address["address_line1"]
+        print address["address_line2"]
+        print address["city"], ",", address["state"], address["zip_code"]
+        print address["country"]
+
+        if self.prompt_boolean(self.PROMPTS["address"]["confirmation_message"]):
+            print self.PROMPTS[filetype]["end_message"]
+            return address
+        else:
+            self.get_address(filetype)
 
     def build_prompt(self, base_prompt, description_list):
         prompt = base_prompt + "\n"
@@ -261,7 +272,7 @@ class ZincWizard(object):
         prompt = self.build_prompt(self.PROMPTS["select_product_variants"], descriptions)
 
         description_number = self.prompt(prompt, 
-                ValidationHelpers.validateNumber(len(descriptions)))
+                ValidationHelpers.validate_number(len(descriptions)))
         chosen_product_id = product_ids[int(description_number)]
 
         quantity = self.get_quantity()
@@ -296,7 +307,7 @@ class ZincWizard(object):
 
         prompt = self.build_prompt(self.PROMPTS["select_shipping_methods"], descriptions)
         description_number = self.prompt(prompt,
-                ValidationHelpers.validateNumber(len(descriptions)))
+                ValidationHelpers.validate_number(len(descriptions)))
         chosen_id = shipping_ids[int(description_number)]
         return chosen_id
 
