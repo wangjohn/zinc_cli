@@ -6,6 +6,9 @@ import json
 class MaximumRequestRetriesExceeded(Exception):
     pass
 
+class ZincTimeoutError(Exception):
+    pass
+
 class ZincRequestProcessor(object):
     @classmethod
     def process(klass, request_type, payload,
@@ -42,7 +45,7 @@ class ZincAbstractProcessor(object):
 
     def wait_for_response(self, url, request_id, start_time):
         if time.time() - start_time > self.request_timeout:
-            raise Exception("The request '%s' timed out after '%s' seconds" %
+            raise ZincTimeoutError("The request '%s' timed out after '%s' seconds" %
                     (request_id, time.time() - start_time))
         time.sleep(self.polling_interval)
         result = self.make_request(url + "/" + request_id, self.get_request_retries)

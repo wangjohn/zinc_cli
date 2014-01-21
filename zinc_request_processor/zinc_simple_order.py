@@ -1,4 +1,5 @@
-from zinc_request_processor import ZincAbstractProcessor
+from zinc_request_processor import ZincAbstractProcessor, ZincTimeoutError, \
+    MaximumRequestRetriesExceeded
 import json
 
 class ZincSimpleOrder(object):
@@ -31,27 +32,29 @@ class ZincSimpleOrder(object):
     def _process_helper(self, order_details, tries):
         if tries > 0:
             try:
-                shipping_methods_response = self.processor("shipping_methods",
-                        self._shipping_methods_details(order_details))
-                store_card_response = self.processor("store_card",
-                        self._store_card_details(order_details))
-                review_order_response = self.processor("review_order", self._review_order_details(
-                    order_details, shipping_methods_response, store_card_response))
-            except Exception:
+                shipping_methods_response = self.processor.post_request(
+                        self._shipping_methods_details(order_details), "shipping_methods")
+                store_card_response = self.processor.post_request(
+                        self._store_card_details(order_details), "store_card")
+                review_order_response = self.processor.post_request(
+                        self._review_order_details(order_details, shipping_methods_response,
+                            store_card_response), "review_order")
+            except (ZincTimeoutError, MaximumRequestRetriesExceeded):
                 return self._process_helper(order_details, tries-1)
 
             # We don't want to retry on place order requests, in case we accidentally
             # place multiple orders.
-            place_order_response = self.processor("place_order",
-                    self._place_order_details(order_details, review_order_response))
+            place_order_response = self.processor.post_request(
+                    self._place_order_details(order_details, review_order_response),
+                    "place_order")
             return place_order_response
         else:
-            raise Exception("Maximum tries exceed: unable to place Zinc order")
+            raise Exception("Maximum tries exceeded: unable to place Zinc order")
 
     def _shipping_methods_details(self, order_details):
         return {
                 "client_token": order_details["client_token"],
-                "retailer": order_details["retailer"]
+                "retailer": order_details["retailer"],
                 "shipping_address": order_details["shipping_address"],
                 "products": self._products(order_details)
                 }
@@ -78,7 +81,7 @@ class ZincSimpleOrder(object):
                 "payment_method": {
                     "security_code": order_details["payment_method"]["security_code"],
                     "cc_token": store_card_response["cc_token"]
-                    }
+                    },
                 "customer_email": order_details["customer_email"]
                 }
 

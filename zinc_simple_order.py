@@ -18,9 +18,11 @@ def main():
     elif args.filename == None and args.data == None:
         raise Exception("You must specify either filename '-f' or data '-d'.")
     elif args.filename != None:
-        print_order_result(ZincSimpleOrder.process_file(args.filename))
+        print "Placing your order from file: '%s'" % args.filename
+        print_order_result(ZincSimpleOrder().process_file(args.filename))
     else:
-        print_order_result(ZincSimpleOrder.process_json(args.data))
+        print "Placing your order!"
+        print_order_result(ZincSimpleOrder().process_json(args.data))
 
 def format_price(self, price):
     price = str(price)
