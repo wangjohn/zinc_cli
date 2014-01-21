@@ -102,10 +102,26 @@ class ZincWizard(object):
             }
         }
 
-    def __init__(self, options = None):
-        self.options = (options if options is not None else {})
+    def __init__(self,
+            product_url = None,
+            retailer = "amazon",
+            client_token = "public",
+            shipping_address = None,
+            billing_address = None,
+            credit_card = None,
+            cc_token = None,
+            gift = None,
+            ):
         self.response_data = {}
         self.security_code = None
+        self.product_url = product_url
+        self.retailer = retailer
+        self.client_token = client_token
+        self.shipping_address = shipping_address
+        self.billing_address = billing_address
+        self.credit_card = credit_card
+        self.cc_token = cc_token
+        self.gift = gift
 
     def start(self):
         self.get_product_variants(self.response_data)
@@ -133,16 +149,14 @@ class ZincWizard(object):
         return False
 
     def get_product_variants(self, response_data):
-        if "product_url" in self.options:
-            product_url = self.options["product_url"]
-        else:
-            product_url = self.prompt(self.PROMPTS["product_variants"])
+        if self.product_url == None:
+            self.product_url = self.prompt(self.PROMPTS["product_variants"])
 
         print "\nProcessing request...\n"
         variants_response = ZincRequestProcessor.process("variant_options", {
-                    "client_token": self.options["client_token"],
-                    "retailer": self.options["retailer"],
-                    "product_url": product_url
+                    "client_token": self.client_token,
+                    "retailer": self.retailer,
+                    "product_url": self.product_url
                     })
         response_data["variant_options_response"] = variants_response
         response_data["products"] = self.select_product_variants(variants_response)
@@ -151,8 +165,8 @@ class ZincWizard(object):
         shipping_address = self.load_file_contents("shipping_address")
         print "\nProcessing request...\n"
         shipping_response = ZincRequestProcessor.process("shipping_methods", {
-                    "client_token": self.options["client_token"],
-                    "retailer": self.options["retailer"],
+                    "client_token": self.client_token,
+                    "retailer": self.retailer,
                     "products": response_data["products"],
                     "shipping_address": shipping_address
                 })
@@ -162,15 +176,13 @@ class ZincWizard(object):
         response_data["shipping_method_id"] = self.select_shipping_methods(shipping_response)
 
     def get_store_card(self, response_data):
-        if "cc_token" in self.options and self.options["cc_token"] != None:
-            response_data["cc_token"] = self.options["cc_token"]
-        else:
+        if self.cc_token == None:
             cc_data = self.load_file_contents("credit_card")
             billing_address = self.load_file_contents("billing_address")
             print "\nProcessing request...\n"
             store_card_response = ZincRequestProcessor.process("store_card", {
-                        "client_token": self.options["client_token"],
-                        "retailer": self.options["retailer"],
+                        "client_token": self.client_token,
+                        "retailer": self.retailer,
                         "billing_address": billing_address,
                         "number": cc_data["number"],
                         "expiration_month": cc_data["expiration_month"],
@@ -188,8 +200,8 @@ class ZincWizard(object):
         is_gift = self.get_is_gift()
         print "\nProcessing request...\n"
         review_order_response = ZincRequestProcessor.process("review_order", {
-                    "client_token": self.options["client_token"],
-                    "retailer": self.options["retailer"],
+                    "client_token": self.client_token,
+                    "retailer": self.retailer,
                     "products": response_data["products"],
                     "shipping_address": response_data["shipping_address"],
                     "is_gift": is_gift,
@@ -205,7 +217,7 @@ class ZincWizard(object):
         if self.prompt_boolean(self.PROMPTS["place_order"]):
             print "\nProcessing request...\n"
             place_order_response = ZincRequestProcessor.process("place_order", {
-                        "client_token": self.options["client_token"],
+                        "client_token": self.client_token,
                         "place_order_key": response_data["review_order_response"]["place_order_key"]
                     })
 
@@ -228,8 +240,8 @@ class ZincWizard(object):
         print "    ", value
 
     def get_is_gift(self):
-        if "gift" in self.options:
-            return self.options["gift"]
+        if self.gift != None:
+            return self.gift
         return self.prompt_boolean(self.PROMPTS["gift"])
 
     def get_security_code(self):
@@ -238,8 +250,8 @@ class ZincWizard(object):
         return self.prompt(self.PROMPTS["security_code"])
 
     def load_file_contents(self, filetype):
-        if filetype in self.options and self.options[filetype] != None:
-            with open(self.options[filetype], 'rb') as f:
+        if getattr(self, filetype) != None:
+            with open(getattr(self, filetype), 'rb') as f:
                 return json.loads(f.read())
         elif filetype == "shipping_address":
             print self.PROMPTS[filetype]["start_message"]
@@ -350,9 +362,4 @@ class ZincWizard(object):
         return chosen_id
 
 if __name__ == '__main__':
-    ZincWizard({'retailer': 'amazon',
-        'client_token': 'public',
-        #'shipping_address': "examples/shipping_address.json",
-        #'billing_address': "examples/shipping_address.json",
-        #'credit_card': "examples/credit_card.json"
-        }).start()
+    ZincWizard().start()
