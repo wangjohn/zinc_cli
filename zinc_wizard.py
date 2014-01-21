@@ -108,7 +108,7 @@ class ZincWizard(object):
                     sys.exit()
 
     def prompt_boolean(self, prompt):
-        result = self.prompt(prompt, ValidationHelpers.validate_boolean).strip()
+        result = self.prompt(prompt, ValidationHelpers.validate_boolean()).strip()
         if (result == "y" or result == ""):
             return True
         return False
@@ -247,7 +247,7 @@ class ZincWizard(object):
         print address["first_name"], address["last_name"]
         print address["address_line1"]
         print address["address_line2"]
-        print address["city"], ",", address["state"], address["zip_code"]
+        print address["city"] + ",", address["state"], address["zip_code"]
         print address["country"]
         print ""
 
@@ -265,21 +265,24 @@ class ZincWizard(object):
     def select_product_variants(self, variants_response):
         descriptions = []
         product_ids = []
-        for i in xrange(len(variants_response["variant_options"])):
-            current_descriptions_list = []
-            current_option = variants_response["variant_options"][i]
-            for dimension in current_option["dimensions"]:
-                current_descriptions_list.append(dimension["name"] + ": " + dimension["value"])
-            if "unit_price" in current_option:
-                current_descriptions_list.append("Price: " + self.format_price(current_option["unit_price"]))
-            product_ids.append(current_option["product_id"])
-            descriptions.append(str(i) + ") " + ", ".join(current_descriptions_list))
+        if (len(variants_response["variant_options"]) > 1):
+            for i in xrange(len(variants_response["variant_options"])):
+                current_descriptions_list = []
+                current_option = variants_response["variant_options"][i]
+                for dimension in current_option["dimensions"]:
+                    current_descriptions_list.append(dimension["name"] + ": " + dimension["value"])
+                if "unit_price" in current_option:
+                    current_descriptions_list.append("Price: " + self.format_price(current_option["unit_price"]))
+                product_ids.append(current_option["product_id"])
+                descriptions.append(str(i) + ") " + ", ".join(current_descriptions_list))
 
-        prompt = self.build_prompt(self.PROMPTS["select_product_variants"], descriptions)
+            prompt = self.build_prompt(self.PROMPTS["select_product_variants"], descriptions)
 
-        description_number = self.prompt(prompt, 
-                ValidationHelpers.validate_number(len(descriptions)))
-        chosen_product_id = product_ids[int(description_number)]
+            description_number = self.prompt(prompt, 
+                    ValidationHelpers.validate_number(len(descriptions)))
+            chosen_product_id = product_ids[int(description_number)]
+        else:
+            chosen_product_id = variants_response["variant_options"][0]["product_id"]
 
         quantity = self.get_quantity()
         return [{
