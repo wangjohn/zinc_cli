@@ -196,11 +196,15 @@ class ZincWizard(object):
 
     def print_price_components(self, response_data):
         components = response_data["review_order_response"]["price_components"]
-        print "Product Subtotal: %s" % components["subtotal"]
-        print "Shipping Cost:    %s" % components["shipping"]
-        print "Tax:              %s" % components["tax"]
-        print "Gift Card:        %s" % components["gift_card"]
-        print "Total:            %s" % components["total"]
+        self.print_indent("Product Subtotal: %s" % self.format_price(components["subtotal"]))
+        self.print_indent("Shipping Cost:    %s" % self.format_price(components["shipping"]))
+        self.print_indent("Tax:              %s" % self.format_price(components["tax"]))
+        if "gift_card" in components:
+            self.print_indent("Gift Card:        %s" % self.format_price(components["gift_card"]))
+        self.print_indent("Total:            %s" % self.format_price(components["total"]))
+
+    def print_indent(self, value):
+        print "    ", value
 
     def get_is_gift(self):
         if "gift" in self.options:
@@ -244,11 +248,11 @@ class ZincWizard(object):
             address[label] = self.prompt(self.PROMPTS["address"][label])
 
         print "\nYou typed the following:\n"
-        print "    %s %s" % (address["first_name"], address["last_name"])
-        print "    %s" % (address["address_line1"])
-        print "    %s" % (address["address_line2"])
-        print "    %s, %s %s" % (address["city"], address["state"], address["zip_code"])
-        print "    %s" % (address["country"])
+        self.print_indent("    %s %s" % (address["first_name"], address["last_name"]))
+        self.print_indent("    %s" % (address["address_line1"]))
+        self.print_indent("    %s" % (address["address_line2"]))
+        self.print_indent("    %s, %s %s" % (address["city"], address["state"], address["zip_code"]))
+        self.print_indent("    %s" % (address["country"]))
         print ""
 
         if self.prompt_boolean(self.PROMPTS["address"]["confirmation_message"]):
