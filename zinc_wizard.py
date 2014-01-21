@@ -248,14 +248,13 @@ class ZincWizard(object):
     def select_product_variants(self, variants_response):
         descriptions = []
         product_ids = []
-        print variants_response
         for i in xrange(len(variants_response["variant_options"])):
             current_descriptions_list = []
             current_option = variants_response["variant_options"][i]
             for dimension in current_option["dimensions"]:
                 current_descriptions_list.append(dimension["name"] + ": " + dimension["value"])
             if "unit_price" in current_option:
-                current_descriptions_list.append("Price: " + current_option["unit_price"])
+                current_descriptions_list.append("Price: " + self.format_price(current_option["unit_price"]))
             product_ids.append(current_option["product_id"])
             descriptions.append(str(i) + ") " + ", ".join(current_descriptions_list))
 
@@ -270,6 +269,14 @@ class ZincWizard(object):
                 "product_id": chosen_product_id,
                 "quantity": quantity
                 }]
+
+    def format_price(self, price):
+        if len(price) > 2:
+            return "$" + price[:(-2)] + "." + price[(-2):]
+        elif len(price) == 2:
+            return "$0." + price
+        elif len(price) == 1:
+            return "$0.0" + price
 
     def get_quantity(self):
         quantity = self.prompt(self.PROMPTS["product_quantity"]).strip()
