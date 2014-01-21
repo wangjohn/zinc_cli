@@ -64,7 +64,7 @@ class ZincWizard(object):
             "address_line1": "Please input the first line of your shipping address:",
             "address_line2": "Please input the second line of your shipping address: (optional)",
             "city": "Please input your city:",
-            "state": "Please input your state (e.g. CA, MA, or IL):",
+            "state": "Please input your state (e.g. CA, MA, etc.):",
             "zip_code": "Please input your zip code:",
             "country": "Please input your country (e.g. US):",
             "confirmation_message": "Is this your correct shipping address? (y)/n"
@@ -243,12 +243,12 @@ class ZincWizard(object):
                 "city", "state", "zip_code", "country"]:
             address[label] = self.prompt(self.PROMPTS["address"][label])
 
-        print "\nYour typed the following:\n"
-        print address["first_name"], address["last_name"]
-        print address["address_line1"]
-        print address["address_line2"]
-        print address["city"] + ",", address["state"], address["zip_code"]
-        print address["country"]
+        print "\nYou typed the following:\n"
+        print "    %s %s" % (address["first_name"], address["last_name"])
+        print "    %s" % (address["address_line1"])
+        print "    %s" % (address["address_line2"])
+        print "    %s, %s %s" % (address["city"], address["state"], address["zip_code"])
+        print "    %s" % (address["country"])
         print ""
 
         if self.prompt_boolean(self.PROMPTS["address"]["confirmation_message"]):
