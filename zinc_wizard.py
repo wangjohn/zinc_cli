@@ -53,11 +53,11 @@ class ValidationHelpers(object):
             oddeven = num_digits & 1
             for count in range(0, num_digits):
                 digit = int(card_number[count])
-            if not (( count & 1 ) ^ oddeven ):
-                digit = digit * 2
-            if digit > 9:
-                digit = digit - 9
-            digit_sum += digit
+                if not (( count & 1 ) ^ oddeven ):
+                    digit = digit * 2
+                if digit > 9:
+                    digit = digit - 9
+                digit_sum += digit
             if ( (digit_sum % 10) == 0 ):
                 return True
             else:
