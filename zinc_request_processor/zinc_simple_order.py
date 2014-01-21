@@ -118,6 +118,6 @@ class ShippingMethodFactory(object):
                 minimum = (method["price"], method["shipping_method_id"])
 
         if minimum[0] == None:
-            return shipping_methods-response["shipping_methods"][0]["shipping_method_id"]
+            return shipping_methods_response["shipping_methods"][0]["shipping_method_id"]
         else:
             return minimum[1]
