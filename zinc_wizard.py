@@ -57,7 +57,7 @@ class ZincWizard(object):
         "shipping_address": {
             "start_message": "\nNow we'd like to get your shipping information.",
             "end_message": "\nYou've finished entering your shipping address!"
-            }
+            },
         "address": {
             "first_name": "Please input your first name:",
             "last_name": "Please input your last name:",
@@ -67,11 +67,11 @@ class ZincWizard(object):
             "state": "Please input your state (e.g. CA or IL):",
             "zip_code": "Please input your zip code:",
             "country": "Please input your country (e.g. US):",
-            }
+            },
         "billing_address" : {
             "start_message": "\nIs your billing address the same as your shipping address? (y)/n",
             "end_message": "\nYou've finished entering you billing address!"
-            }
+            },
         "credit_card": {
             "start_message": "\nNow we'd like to get your credit card information.",
             "number": "Please input your credit card number",
@@ -248,13 +248,14 @@ class ZincWizard(object):
     def select_product_variants(self, variants_response):
         descriptions = []
         product_ids = []
+        print variants_response
         for i in xrange(len(variants_response["variant_options"])):
             current_descriptions_list = []
             current_option = variants_response["variant_options"][i]
             for dimension in current_option["dimensions"]:
                 current_descriptions_list.append(dimension["name"] + ": " + dimension["value"])
-            if "price" in current_option:
-                current_descriptions_list.append("Price: " + current_option["price"])
+            if "unit_price" in current_option:
+                current_descriptions_list.append("Price: " + current_option["unit_price"])
             product_ids.append(current_option["product_id"])
             descriptions.append(str(i) + ") " + ", ".join(current_descriptions_list))
 
