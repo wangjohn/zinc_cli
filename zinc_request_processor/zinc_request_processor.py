@@ -17,7 +17,7 @@ class ZincRequestProcessor(object):
 class ZincAbstractProcessor(object):
     def __init__(self, zinc_base_url="https://api.zinc.io/v0", 
             polling_interval = 1.0,
-            request_timeout = 90,
+            request_timeout = 180,
             get_request_timeout = 5.0,
             post_request_timeout = 10.0,
             get_request_retries = 3):
@@ -62,5 +62,5 @@ class ZincAbstractProcessor(object):
             if retries > 0:
                 return self.make_request(full_url, retries-1)
             else:
-                raise MaximumRequestRetriesExceeded("Maximum number of errors exceeded for connecting to the Zinc API")
+                raise MaximumRequestRetriesExceeded("Maximum number of request retries exceeded for connecting to the Zinc API")
 
