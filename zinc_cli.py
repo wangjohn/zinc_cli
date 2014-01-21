@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from zinc_wizard import ZincWizard
+from zinc_request_processor import ZincWizard
 import argparse
 import os
 

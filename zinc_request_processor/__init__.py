@@ -1,1 +1,2 @@
 from zinc_request_processor import ZincRequestProcessor
+from zinc_wizard import ZincWizard
