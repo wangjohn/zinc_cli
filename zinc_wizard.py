@@ -64,7 +64,7 @@ class ZincWizard(object):
             "address_line1": "Please input the first line of your shipping address:",
             "address_line2": "Please input the second line of your shipping address: (optional)",
             "city": "Please input your city:",
-            "state": "Please input your state (e.g. CA or IL):",
+            "state": "Please input your state (e.g. CA, MA, or IL):",
             "zip_code": "Please input your zip code:",
             "country": "Please input your country (e.g. US):",
             "confirmation_message": "Is this your correct shipping address? (y)/n"
@@ -119,6 +119,7 @@ class ZincWizard(object):
         else:
             product_url = self.prompt(self.PROMPTS["product_variants"])
 
+        print "\nProcessing request...\n"
         variants_response = ZincRequestProcessor.process("variant_options", {
                     "client_token": self.options["client_token"],
                     "retailer": self.options["retailer"],
@@ -129,6 +130,7 @@ class ZincWizard(object):
 
     def get_shipping_methods(self, response_data):
         shipping_address = self.load_file_contents("shipping_address")
+        print "\nProcessing request...\n"
         shipping_response = ZincRequestProcessor.process("shipping_methods", {
                     "client_token": self.options["client_token"],
                     "retailer": self.options["retailer"],
@@ -145,6 +147,7 @@ class ZincWizard(object):
             response_data["cc_token"] = self.options["cc_token"]
         else:
             cc_data = self.load_file_contents("credit_card")
+            print "\nProcessing request...\n"
             store_card_response = ZincRequestProcessor.process("store_card", {
                         "client_token": self.options["client_token"],
                         "retailer": self.options["retailer"],
@@ -162,6 +165,7 @@ class ZincWizard(object):
                 "cc_token": response_data["cc_token"],
                 "security_code": self.get_security_code()
                 }
+        print "\nProcessing request...\n"
         review_order_response = ZincRequestProcessor.process("review_order", {
                     "client_token": self.options["client_token"],
                     "retailer": self.options["retailer"],
@@ -178,6 +182,7 @@ class ZincWizard(object):
     def get_place_order(self, response_data):
         self.print_price_components(response_data)
         if self.prompt_boolean(self.PROMPTS["place_order"]):
+            print "\nProcessing request...\n"
             place_order_resonse = ZincRequestProcessor.process("place_order", {
                         "client_token": self.options["client_token"],
                         "place_order_key": response_data["review_order_response"]["place_order_key"]
@@ -244,6 +249,7 @@ class ZincWizard(object):
         print address["address_line2"]
         print address["city"], ",", address["state"], address["zip_code"]
         print address["country"]
+        print ""
 
         if self.prompt_boolean(self.PROMPTS["address"]["confirmation_message"]):
             print self.PROMPTS[filetype]["end_message"]

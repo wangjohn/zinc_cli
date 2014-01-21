@@ -8,19 +8,25 @@ class MaximumRequestRetriesExceeded(Exception):
 
 class ZincRequestProcessor(object):
     @classmethod
-    def process(klass, request_type, payload):
-        print "\nProcessing request...\n"
+    def process(klass, request_type, payload,
+            zinc_base_url="https://api.zinc.io/v0",
+            polling_interval=1.0):
         processor = ZincAbstractProcessor()
         return processor.post_request(payload, request_type)
 
 class ZincAbstractProcessor(object):
-    def __init__(self, zinc_base_url="https://api.zinc.io/v0",
-            client_token="zinc_monkey", polling_interval = 1.0):
+    def __init__(self, zinc_base_url="https://api.zinc.io/v0", 
+            polling_interval = 1.0,
+            request_timeout = 90,
+            get_request_timeout = 5.0,
+            post_request_timeout = 10.0,
+            get_request_retries = 3):
         self.zinc_base_url = zinc_base_url
         self.polling_interval = polling_interval
-        self.request_timeout = 90
-        self.get_request_timeout = 5.0
-        self.post_request_timeout = 10.0
+        self.request_timeout = request_timeout
+        self.get_request_timeout = get_request_timeout
+        self.post_request_timeout = post_request_timeout
+        self.get_request_retries = get_request_retries
 
     def current_url(self, url_stub = None):
         if url_stub:
@@ -39,7 +45,7 @@ class ZincAbstractProcessor(object):
             raise Exception("The request '%s' timed out after '%s' seconds" %
                     (request_id, time.time() - start_time))
         time.sleep(self.polling_interval)
-        result = self.make_request(url + "/" + request_id)
+        result = self.make_request(url + "/" + request_id, self.get_request_retries)
         result_json = result.json()
         if result_json["_type"] == "error" and result_json["code"] == "request_processing":
             return self.wait_for_response(url, request_id, start_time)
@@ -49,7 +55,7 @@ class ZincAbstractProcessor(object):
             end_time = time.time()
             return result_json
 
-    def make_request(self, full_url, retries=3):
+    def make_request(self, full_url, retries):
         try:
             return requests.get(full_url, timeout=self.get_request_timeout)
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
