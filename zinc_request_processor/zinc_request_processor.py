@@ -9,6 +9,9 @@ class MaximumRequestRetriesExceeded(Exception):
 class ZincTimeoutError(Exception):
     pass
 
+class ZincError(Exception):
+    pass
+
 class ZincRequestProcessor(object):
     @classmethod
     def process(klass, request_type, payload,
@@ -53,7 +56,7 @@ class ZincAbstractProcessor(object):
         if result_json["_type"] == "error" and result_json["code"] == "request_processing":
             return self.wait_for_response(url, request_id, start_time)
         elif result_json["_type"] == "error":
-            raise Exception(json.dumps(result_json))
+            raise ZincError(json.dumps(result_json))
         else:
             end_time = time.time()
             return result_json

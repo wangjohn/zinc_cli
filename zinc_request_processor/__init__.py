@@ -1,3 +1,4 @@
 from zinc_request_processor import ZincRequestProcessor, ZincAbstractProcessor
 from zinc_simple_order import ZincSimpleOrder
 from zinc_wizard import ZincWizard
+from format_price import format_price

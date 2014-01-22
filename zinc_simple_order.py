@@ -1,5 +1,4 @@
-from zinc_request_processor import ZincSimpleOrder
-from format_price import format_price
+from zinc_request_processor import ZincSimpleOrder, format_price
 import argparse
 import os
 

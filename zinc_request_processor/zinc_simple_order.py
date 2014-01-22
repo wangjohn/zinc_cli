@@ -1,5 +1,5 @@
 from zinc_request_processor import ZincAbstractProcessor, ZincTimeoutError, \
-    MaximumRequestRetriesExceeded
+    MaximumRequestRetriesExceeded, ZincError
 import json
 
 class ZincSimpleOrder(object):
@@ -22,12 +22,30 @@ class ZincSimpleOrder(object):
     def process(self, order_details):
         return self._process_helper(order_details, self.max_tries)
 
-    def process_json(self, json_order_details):
-        return self.process(json.loads(json_order_details))
+    def process_json(self, json_order_details, multiple=False):
+        if multiple:
+            return self.process_multiple(json.loads(json_order_details))
+        else:
+            return self.process(json.loads(json_order_details))
 
-    def process_file(self, filename):
+    def process_file(self, filename, multiple=False):
         with open(filename, 'rb') as f:
-            return self.process_json(f.read())
+            return self.process_json(f.read(), multiple)
+
+    def process_multiple(self, orders):
+        error_orders = []
+        success_orders = []
+        for order_details in orders:
+            try:
+                response = self.process(order_details)
+                success_orders.append((order_details, response))
+            except:
+                error_orders.append(order_details)
+
+        return {
+                "error_orders": error_orders,
+                "success_orders": success_orders
+                }
 
     def _process_helper(self, order_details, tries):
         if tries > 0:
@@ -39,7 +57,7 @@ class ZincSimpleOrder(object):
                 review_order_response = self.processor.post_request(
                         self._review_order_details(order_details, shipping_methods_response,
                             store_card_response), "review_order")
-            except (ZincTimeoutError, MaximumRequestRetriesExceeded):
+            except (ZincTimeoutError, MaximumRequestRetriesExceeded, ZincError):
                 return self._process_helper(order_details, tries-1)
 
             # We don't want to retry on place order requests, in case we accidentally
@@ -121,3 +139,14 @@ class ShippingMethodFactory(object):
             return shipping_methods_response["shipping_methods"][0]["shipping_method_id"]
         else:
             return minimum[1]
+
+    @classmethod
+    def second(klass, shipping_methods_response):
+        possible_methods = ['second','std-n-us','std-us', 'second-non48', 'std-n-us-non48', 'std-us-non48']
+
+        for shipping_id in possible_methods:
+            for method in shipping_methods_response["shipping_methods"]:
+                if method["shipping_method_id"] == shipping_id:
+                    return shipping_id
+        raise Exception("Unable to find two day shipping method")
+
