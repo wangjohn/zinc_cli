@@ -127,7 +127,7 @@ class ShippingMethodFactory(object):
 
     @classmethod
     def second(klass, shipping_methods_response):
-        possible_methods = ['second','std-n-us','std-us', 'second-non48', 'std-n-us-non48', 'std-us-non48']
+        possible_methods = ['second','std-n-us','std-us', 'Std Cont US Street Addr', 'Std US Dom Plus', 'second-non48', 'std-n-us-non48', 'std-us-non48']
 
         for shipping_id in possible_methods:
             for method in shipping_methods_response["shipping_methods"]:
