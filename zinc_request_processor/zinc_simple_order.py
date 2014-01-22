@@ -32,21 +32,6 @@ class ZincSimpleOrder(object):
         with open(filename, 'rb') as f:
             return self.process_json(f.read(), multiple)
 
-    def process_multiple(self, orders):
-        error_orders = []
-        success_orders = []
-        for order_details in orders:
-            try:
-                response = self.process(order_details)
-                success_orders.append((order_details, response))
-            except:
-                error_orders.append(order_details)
-
-        return {
-                "error_orders": error_orders,
-                "success_orders": success_orders
-                }
-
     def _process_helper(self, order_details, tries):
         if tries > 0:
             try:
