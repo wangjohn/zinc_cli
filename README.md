@@ -55,3 +55,46 @@ python zinc_interactive.py -p http://www.amazon.com/Honey-Can-Do-HNGZ01523-Light
 
 If you don't like going through the process of making orders through the interactive cli, you can also use the Zinc simple order module. This is a python module which allows you to make orders by pre-specifying all of your required fields in a python dictionary or a json file.
 
+You can see an example of the simple order format in `examples/simple_order.json`, reproduced below:
+
+```
+{
+  "client_token": "public",
+  "retailer": "amazon",
+  "product_id": "B007JR5304",
+  "quantity": 1,
+  "shipping_address": {
+    "first_name": "Ben",
+    "last_name": "Bitdiddle",
+    "address_line1": "77 Massachusetts Avenue",
+    "address_line2": "",
+    "zip_code": "02139",
+    "city": "Cambridge",·
+    "state": "MA",
+    "country": "US"
+  },
+  "is_gift": false,
+  "customer_email": "benbitdiddle@gmail.com",
+  "shipping_preference": "cheapest",
+  "payment_method": {
+    "number": "5555555555554444",
+    "security_code": "123",
+    "expiration_month": 1,
+    "expiration_year": 2015
+  },
+  "billing_address": {
+    "first_name": "Alyssa",
+    "last_name": "Hacker",
+    "address_line1": "84 Massachusetts Ave",
+    "address_line2": "",
+    "zip_code": "02139",
+    "city": "Cambridge",·
+    "state": "MA",
+    "country": "US"
+  }
+}
+```
+
+For the simple order module, you just need to prepopulate all the relevant information, like shipping address, billing address, payment method information, etc. The `product_id` field corresponds to the Amazon Standard Identification Number (ASIN), which can be found in the Amazon product url.
+
+The `shipping_preference`.
