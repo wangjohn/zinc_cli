@@ -1,4 +1,5 @@
 from zinc_request_processor import ZincSimpleOrder
+from format_price import format_price
 import argparse
 import os
 
@@ -23,15 +24,6 @@ def main():
     else:
         print "Placing your order!"
         print_order_result(ZincSimpleOrder().process_json(args.data))
-
-def format_price(self, price):
-    price = str(price)
-    if len(price) > 2:
-        return "$" + price[:(-2)] + "." + price[(-2):]
-    elif len(price) == 2:
-        return "$0." + price
-    elif len(price) == 1:
-        return "$0.0" + price
 
 def print_order_result(result):
     print "Merchant Order Id:", format_price(result["merchant_order"]["merchant_order_id"])

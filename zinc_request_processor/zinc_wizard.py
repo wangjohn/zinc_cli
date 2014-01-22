@@ -1,4 +1,5 @@
 from zinc_request_processor import ZincRequestProcessor
+from format_price import format_price
 import sys
 import json
 
@@ -226,19 +227,19 @@ class ZincWizard(object):
             response_data["place_order_response"] = place_order_response
             print "HOORAY! You've successfully placed an order. Here are the details:\n"
             print "Amazon Order Id: %s" % place_order_response["merchant_order"]["merchant_order_id"]
-            print "Total Price: %s" % self.format_price(place_order_response["price_components"]["total"])
+            print "Total Price: %s" % format_price(place_order_response["price_components"]["total"])
             print place_order_response["shipping_method"]["name"] + ": " + place_order_response["shipping_method"]["description"]
 
     def print_price_components(self, response_data):
         components = response_data["review_order_response"]["price_components"]
-        self.print_indent("Product Subtotal: %s" % self.format_price(components["subtotal"]))
-        self.print_indent("Shipping Cost:    %s" % self.format_price(components["shipping"]))
-        self.print_indent("Tax:              %s" % self.format_price(components["tax"]))
+        self.print_indent("Product Subtotal: %s" % format_price(components["subtotal"]))
+        self.print_indent("Shipping Cost:    %s" % format_price(components["shipping"]))
+        self.print_indent("Tax:              %s" % format_price(components["tax"]))
         if "gift_certificate" in components:
-            self.print_indent("Gift Certificate: %s" % self.format_price(components["gift_certificate"]))
+            self.print_indent("Gift Certificate: %s" % format_price(components["gift_certificate"]))
         if "promotion" in components:
-            self.print_indent("Promotion:        %s" % self.format_price(components["promotion"]))
-        self.print_indent("Total:            %s" % self.format_price(components["total"]))
+            self.print_indent("Promotion:        %s" % format_price(components["promotion"]))
+        self.print_indent("Total:            %s" % format_price(components["total"]))
 
     def print_indent(self, value):
         print "    ", value
@@ -316,7 +317,7 @@ class ZincWizard(object):
                 for dimension in current_option["dimensions"]:
                     current_descriptions_list.append(dimension["name"] + ": " + dimension["value"])
                 if "unit_price" in current_option:
-                    current_descriptions_list.append("Price: " + self.format_price(current_option["unit_price"]))
+                    current_descriptions_list.append("Price: " + format_price(current_option["unit_price"]))
                 product_ids.append(current_option["product_id"])
                 descriptions.append(str(i) + ") " + ", ".join(current_descriptions_list))
 
@@ -333,15 +334,6 @@ class ZincWizard(object):
                 "product_id": chosen_product_id,
                 "quantity": quantity
                 }]
-
-    def format_price(self, price):
-        price = str(price)
-        if len(price) > 2:
-            return "$" + price[:(-2)] + "." + price[(-2):]
-        elif len(price) == 2:
-            return "$0." + price
-        elif len(price) == 1:
-            return "$0.0" + price
 
     def get_quantity(self):
         quantity = self.prompt(self.PROMPTS["product_quantity"]).strip()
