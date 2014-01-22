@@ -1,5 +1,5 @@
-from multiprocessing import Pool
 from zinc_request_processor import ZincSimpleOrder
+from multiprocessing import Pool
 import json
 import traceback
 
@@ -15,33 +15,35 @@ class ZincResponse(object):
     def successful(self):
         return self.status == "successful"
 
+def process_single(order_details):
+    simple_order = ZincSimpleOrder()
+    try:
+        response = simple_order.process(order_details)
+        return ZincResponse(order_details, response, "successful")
+    except:
+        error_message = traceback.format_exc()
+        return ZincResponse(order_details, error_message, "failed")
+
 class ZincConcurrentSimpleOrders(object):
     def __init__(self, num_processes=8):
         self.pool = Pool(processes=num_processes)
 
-    def process_single(self, order_details):
-        simple_order = ZincSimpleOrder()
-        try:
-            response = simple_order.process(order_details)
-            return ZincResponse(order_details, response, "successful")
-        except:
-            error_message = traceback.format_exc()
-            return ZincResponse(order_details, error_message, "failed")
-
     def process(self, orders):
-        return self.pool.map(self.process_single, orders)
+        return self.pool.map(process_single, orders)
 
 if __name__ == '__main__':
-    filename = "examples/"
+    filename = "examples/prototype_day_test.json"
+    failed_filename = "examples/prototype_day_failed.json"
     with open(filename, 'rb') as f:
-        orders = json.loads(f.read())
-    results = ZincConcurrentSimpleOrders(orders).process()
+        orders = json.loads(f.read())["orders"]
+    print len(orders)
+    results = ZincConcurrentSimpleOrders().process(orders)
 
     failed_orders = []
     for result in results:
         if result.failed():
             print "FAILED!"
-            failed_orders.append(result.order_details)
+            failed_orders.append(result.request)
 
     json_to_write = {"failed_orders": failed_orders}
     with open(failed_filename, 'wb') as f:
