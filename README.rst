@@ -1,7 +1,7 @@
 Welcome to Zinc
 ===============
 
-`Zinc_<http://zinc.io/>` is an API for making e-commerce purchases. This package allows you to easily access the API and make purchases on Amazon through the command line. It also offers wrappers around the Zinc API that can be used easily in python code. 
+_Zinc: http://zinc.io/ is an API for making e-commerce purchases. This package allows you to easily access the API and make purchases on Amazon through the command line. It also offers wrappers around the Zinc API that can be used easily in python code. 
 
 The module features:
   - Interactive wizard for purchasing Amazon items from the command line
@@ -52,7 +52,7 @@ Simple Order
 
 If you don't like going through the process of making orders through the interactive cli, you can also use the Zinc simple order module. This is a python module which allows you to make orders by pre-specifying all of your required fields in a python dictionary or a json file.
 
-You can see an example of the simple order format in `examples/simple_order.json`, reproduced below:
+You can see an example of the simple order format in `examples/simple_order.json`, reproduced below::
 
   {
     "client_token": "public",
