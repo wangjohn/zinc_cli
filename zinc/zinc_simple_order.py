@@ -12,6 +12,7 @@ class ZincSimpleOrder(object):
             get_request_timeout = 5.0,
             post_request_timeout = 10.0,
             get_request_retries = 3):
+        self.shipping_method_factory = ShippingMethodFactory
         self.max_tries = max_tries
         self.processor = ZincAbstractProcessor(zinc_base_url=zinc_base_url,
                 polling_interval=polling_interval,
@@ -103,5 +104,5 @@ class ZincSimpleOrder(object):
 
 
     def _shipping_method_id(self, order_details, shipping_methods_response):
-        return ShippingMethodFactory.shipping_method(
+        return self.shipping_method_factory.shipping_method(
                 order_details["shipping_preference"], shipping_methods_response)
