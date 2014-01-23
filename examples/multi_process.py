@@ -1,4 +1,4 @@
-from zinc_request_processor import ZincSimpleOrder
+from zinc import ZincSimpleOrder
 from multiprocessing import Pool
 import json
 import traceback

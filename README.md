@@ -121,6 +121,7 @@ Instead of using the CLI, you can also import the `zinc` module into one of your
 
 ```
 from zinc import ZincSimpleOrder
+
 result = ZincSimpleOrder().process({
   "client_token": "public",
   "retailer": "amazon",
@@ -159,3 +160,9 @@ result = ZincSimpleOrder().process({
 
 print result
 ```
+
+You can check out an example python script that processes orders from a python file concurrently. The script is in `examples/multi_process.py`. Check out the documentation in the source to see more ways that you can access the API.
+
+## Contact
+
+If you would like to learn more about Zinc or place a large number of orders on Amazon in an automated way, please contact <support@zinc.io>. We've got infrastructure set up to help you out!
