@@ -110,6 +110,7 @@ class ZincWizard(object):
             client_token = "public",
             shipping_address = None,
             billing_address = None,
+            retailer_credentials = None,
             credit_card = None,
             cc_token = None,
             gift = None,
@@ -121,6 +122,7 @@ class ZincWizard(object):
         self.client_token = client_token
         self.shipping_address = shipping_address
         self.billing_address = billing_address
+        self.retailer_credentials = retailer_credentials
         self.credit_card = credit_card
         self.cc_token = cc_token
         self.gift = gift
