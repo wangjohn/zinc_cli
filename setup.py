@@ -1,11 +1,11 @@
 from distutils.core import setup
 
-with open('README.rst') as f:
+with open('README') as f:
     readme = f.read()
 
 setup(
     name='Zinc',
-    version='0.1.2',
+    version='0.1.3',
     author='John Wang',
     author_email='john@zinc.io',
     packages=['zinc'],
