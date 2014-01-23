@@ -12,6 +12,10 @@ class ZincError(Exception):
     pass
 
 class ZincRequestProcessor(object):
+    """Processor for Zinc API requests.
+
+    Simple wrapper that instantiates and calls the ZincAbstractProcessor.
+    """
     @classmethod
     def process(klass, request_type, payload,
             zinc_base_url="https://api.zinc.io/v0",

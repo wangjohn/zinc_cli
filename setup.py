@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='Zinc',
-    version='0.2.1',
+    version='0.1.1',
     author='John Wang',
     author_email='john@zinc.io',
     packages=['zinc'],
