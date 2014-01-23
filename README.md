@@ -114,3 +114,48 @@ For the `shipping_preference` item, you can set different preferences for how yo
 * `cheapest`: Select the cheapest shipping method available
 * `second`: Select second day shipping
 * `standard`: Select the standard shipping method
+
+## Python Usage
+
+Instead of using the CLI, you can also import the `zinc` module into one of your python scripts. This allows you to customize and automate your Amazon purchases.
+
+```
+from zinc import ZincSimpleOrder
+result = ZincSimpleOrder().process({
+  "client_token": "public",
+  "retailer": "amazon",
+  "product_id": "B007JR5304",
+  "quantity": 1,
+  "shipping_address": {
+    "first_name": "Ben",
+    "last_name": "Bitdiddle",
+    "address_line1": "77 Massachusetts Avenue",
+    "address_line2": "",
+    "zip_code": "02139",
+    "city": "Cambridge",·
+    "state": "MA",
+    "country": "US"
+  },
+  "is_gift": false,
+  "customer_email": "benbitdiddle@gmail.com",
+  "shipping_preference": "cheapest",
+  "payment_method": {
+    "number": "5555555555554444",
+    "security_code": "123",
+    "expiration_month": 1,
+    "expiration_year": 2015
+  },
+  "billing_address": {
+    "first_name": "Alyssa",
+    "last_name": "Hacker",
+    "address_line1": "84 Massachusetts Ave",
+    "address_line2": "",
+    "zip_code": "02139",
+    "city": "Cambridge",·
+    "state": "MA",
+    "country": "US"
+  }
+})
+
+print result
+```
