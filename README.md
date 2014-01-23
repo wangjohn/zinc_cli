@@ -13,21 +13,14 @@ The module features:
 For a quick start, just clone the repo and run the `zinc_interactive.py` file. You can either run
 
 ```
-python zinc_interactive.py
-```
-
-Or you can turn the file into a script and run it.
-
-```
-chmod +x zinc_interactive.py
-./zinc_interactive.py
+python -m zinc
 ```
 
 This will bring up an interactive wizard interface that you can use the make Amazon purchases.
 
 ## CLI Options
 
-There are other ways of using the Zinc CLI. You can create json files for your shipping address, billing address, and credit card information so you don't have to type them in every time you make an order. You can run `python zinc_interactive.py -h` to get help for the commands that you can use.
+There are other ways of using the Zinc CLI. You can create json files for your shipping address, billing address, and credit card information so you don't have to type them in every time you make an order. You can run `python -m zinc -h` to get help for the commands that you can use.
 
 For example, I might have the file `/home/john/zinc_cli/examples/shipping_address.json` with the following contents:
 
@@ -47,13 +40,13 @@ For example, I might have the file `/home/john/zinc_cli/examples/shipping_addres
 Then I could run the cli with the `-s` option pointing to this shipping address file:
 
 ```
-python zinc_interactive.py -s /home/john/zinc_cli/examples/shipping_address.json
+python -m zinc -s /home/john/zinc_cli/examples/shipping_address.json
 ```
 
 You can do the same things for billing address and credit card information. The `examples` folder has a number examples that you can try. For example, if you wanted to place an Amazon order for clothing hangers with pre-populated shipping address and credit card information, you could do:
 
 ```
-python zinc_interactive.py -p http://www.amazon.com/Honey-Can-Do-HNGZ01523-Light-Weight-Plastic-Hangers/dp/B0037QGRR4 -s examples/shipping_address.json -c examples/credit_card.json
+python -m zinc -p http://www.amazon.com/Honey-Can-Do-HNGZ01523-Light-Weight-Plastic-Hangers/dp/B0037QGRR4 -sa examples/shipping_address.json -c examples/credit_card.json
 ```
 
 ## Simple Order
