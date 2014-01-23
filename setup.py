@@ -2,12 +2,12 @@ from distutils.core import setup
 
 setup(
     name='Zinc',
-    version='0.1.5',
+    version='0.1.7',
     author='John Wang',
     author_email='john@zinc.io',
     packages=['zinc'],
     package_dir={'zinc': ''},
-    package_data={'zinc': ['examples/*.py', 'examples/*.json', 'README']},
+    package_data={'zinc': ['examples/*.py', 'examples/*.json', 'README', 'zinc/*']},
     include_package_data=True,
     url='https://github.com/wangjohn/zinc_cli',
     license='LICENSE.txt',
