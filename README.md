@@ -10,13 +10,19 @@ The module features:
 
 ## Quick Start
 
-For a quick start, just clone the repo and run the `zinc_interactive.py` file. You can either run
+For starting quickly, you can either clone the repo or use the pip python package manager.
+
+```
+pip install zinc
+```
+
+Once you've installed the Zinc module, you can start using it like so:
 
 ```
 python -m zinc
 ```
 
-This will bring up an interactive wizard interface that you can use the make Amazon purchases.
+This will bring up an interactive wizard interface that you can use the make Amazon purchases. Just grab the URL for any product on Amazon, and following the instructions in the wizard. You'll be able to make a purchase directly in your terminal!
 
 ## CLI Options
 
@@ -37,10 +43,10 @@ For example, I might have the file `/home/john/zinc_cli/examples/shipping_addres
 }
 ```
 
-Then I could run the cli with the `-s` option pointing to this shipping address file:
+Then I could run the cli with the `-sa` option pointing to this shipping address file:
 
 ```
-python -m zinc -s /home/john/zinc_cli/examples/shipping_address.json
+python -m zinc -sa /home/john/zinc_cli/examples/shipping_address.json
 ```
 
 You can do the same things for billing address and credit card information. The `examples` folder has a number examples that you can try. For example, if you wanted to place an Amazon order for clothing hangers with pre-populated shipping address and credit card information, you could do:
@@ -93,6 +99,18 @@ You can see an example of the simple order format in `examples/simple_order.json
 }
 ```
 
-For the simple order module, you just need to prepopulate all the relevant information, like shipping address, billing address, payment method information, etc. The `product_id` field corresponds to the Amazon Standard Identification Number (ASIN), which can be found in the Amazon product url.
+Once you've written this down into a json file, you can run:
 
-The `shipping_preference`.
+```
+python -m zinc -s -f examples/simple_order.json
+```
+
+For making simple orders, you just need to prepopulate all the relevant information like shipping address, billing address, payment method information, etc. The `product_id` field corresponds to the Amazon Standard Identification Number (ASIN), which can be found in the Amazon product url.
+
+### Shipping Methods
+
+For the `shipping_preference` item, you can set different preferences for how you want your items shipped. The available preferences are:
+
+* `cheapest`: Select the cheapest shipping method available
+* `second`: Select second day shipping
+* `standard`: Select the standard shipping method

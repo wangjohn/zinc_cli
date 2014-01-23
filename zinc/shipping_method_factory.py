@@ -28,3 +28,12 @@ class ShippingMethodFactory(object):
                     return shipping_id
         raise Exception("The response doesn't have any of the shipping methods you requested")
 
+    @classmethod
+    def standard(klass, shipping_methods_response):
+        possible_methods = ['std-n-us','std-us', 'Std Cont US Street Addr', 'Std US Dom Plus', 'std-n-us-non48', 'std-us-non48']
+
+        for shipping_id in possible_methods:
+            for method in shipping_methods_response["shipping_methods"]:
+                if method["shipping_method_id"] == shipping_id:
+                    return shipping_id
+        raise Exception("The response doesn't have any of the shipping methods you requested")
