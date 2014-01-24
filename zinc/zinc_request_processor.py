@@ -28,6 +28,12 @@ class ZincRequestProcessor(object):
     """Processor for Zinc API requests.
 
     Simple wrapper that instantiates and calls the ZincAbstractProcessor.
+    Can be used to process either a synchronous request, using the +process+
+    method, or an asynchronous request, using the +process_async+ method.
+
+    The +process+ method will block until a request has returned, and the
+    +process_async+ method will return a ZincAsyncRequest object which can
+    be used to get the response later.
     """
     @classmethod
     def process(klass, request_type, payload,
@@ -43,6 +49,28 @@ class ZincRequestProcessor(object):
         return processor.post_request(payload, request_type, async=True)
 
 class ZincAbstractProcessor(object):
+    """
+    Base class for making calls to the Zinc API.
+
+    The main method for this class, +post_request+, takes in a python dictionary
+    and a url_stub. The python dictionary should contain all of the data necessary
+    to make a Zinc API call, and the url_stub should be the name of one of the
+    API calls (e.g. "variant_options", "shipping_methods", "store_card",
+    "review_order", or "place_order").
+
+    Example usage would be the following:
+
+        processor = ZincAbstractProcessor()
+        payload = {
+            "client_token": "public",
+            "retailer": "amazon",
+            "product_url": "http://www.amazon.com/gp/product/0394800761"
+            }
+        result = processor.post_request(payload, "variant_options")
+
+    For more examples using the ZincAbstractProcessor, see the "examples/"
+    directory.
+    """
     def __init__(self, zinc_base_url="https://api.zinc.io/v0", 
             polling_interval = 1.0,
             request_timeout = 180,

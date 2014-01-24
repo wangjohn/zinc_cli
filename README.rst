@@ -106,7 +106,7 @@ Once you've written this down into a json file, you can specify the `-s` option 
 
   python -m zinc -s -f examples/simple_order.json
 
-To make simple orders, you just need to prepopulate all the relevant information like shipping address, billing address, payment method information, etc. The `product_id` field corresponds to the Amazon Standard Identification Number (ASIN), which can be found in the Amazon product url. You will aslo need to set the `shipping_preference` field, explained in the next section.
+To make simple orders, you just need to prepopulate all the relevant information like shipping address, billing address, payment method information, etc. The `product_id` field corresponds to the `Amazon Standard Identification Number (ASIN) <http://en.wikipedia.org/wiki/Amazon_Standard_Identification_Number>`_, which can be found in the Amazon product url. You will aslo need to set the `shipping_preference` field, explained in the next section.
 
 Shipping Methods
 ----------------
@@ -120,7 +120,7 @@ For the `shipping_preference` item, you can set different preferences for how yo
 Python Usage
 ============
 
-Instead of using the CLI, you can also import the `zinc` module into one of your python scripts. This allows you to customize and automate your Amazon purchases.::
+Instead of using the CLI, you can also import the `zinc` module into one of your python scripts. This allows you to customize and automate your Amazon purchases. You can use the `ZincSimpleOrder` class to easily access the Zinc API. You can check out the `examples/simple_order_example.py` script to see how to use it (reproduced below)::
 
   from zinc import ZincSimpleOrder
 
@@ -164,6 +164,38 @@ Instead of using the CLI, you can also import the `zinc` module into one of your
   print result
 
 You can check out an example python script that processes orders from a python file concurrently. The script is in `examples/multi_process.py`.
+
+Advanced Python Usage
+---------------------
+
+If you'd like to get more control over your API, you can use the `ZincRequestProcessor` class to make requests. The `process` method for the `ZincRequestProcessor` class allows you to place any call to the Zinc API and wait for the response. For example, you could do something like the following::
+
+  from zinc import ZincRequestProcessor
+  payload = {
+      "client_token": "public",
+      "retailer": "amazon",
+      "product_url": "http://www.amazon.com/gp/product/0394800761"
+  }
+  result = ZincRequestProcessor.process("variant_options", payload)
+  print result
+
+The `process` method returns a python dictionary with the Zinc API's response to your request. Running the previous script would print out the following::
+
+  {
+    'product_url': 'http://www.amazon.com/gp/product/0394800761',
+    '_created_at': '2014-01-24T21:59:12.755Z',
+    '_type': 'variant_options_response',
+    'variant_options': [{
+        '_type': 'variant_option',
+        '_id': '52e2e230ef2840020000020a',
+        'product_id': '0394800761',
+        'unit_price': '1149',
+        'dimensions': []
+      }], 
+    'retailer': 'amazon'
+  }
+
+Check the `Zinc API documentation <http://zinc.io/docs/api.html>`_ to see all of the possible API calls. An example that uses the `ZincRequestProcessor` class to place an entire order is given in `examples/request_processor_example.py`.
 
 Contact
 =======
