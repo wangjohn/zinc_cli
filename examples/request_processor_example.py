@@ -1,5 +1,3 @@
-from zinc import ZincRequestProcessor
-
 ###############################################################################
 #
 # ZincRequestProcessor Example
@@ -13,6 +11,8 @@ from zinc import ZincRequestProcessor
 # invalid credit card number.
 #
 ###############################################################################
+
+from zinc import ZincRequestProcessor
 
 # PRODUCT VARIANTS
 # Get all the possible product variants for this URL.

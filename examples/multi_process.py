@@ -1,3 +1,16 @@
+###############################################################################
+#
+# ZincSimpleOrder Example
+#
+# This is an example of how to use the ZincSimpleOrder class to place concurrent
+# requests using Python's multiprocessing module. You can place many requests
+# at the same time. This example reads in data from "examples/multiple_orders.json".
+#
+# Note that the example data does not use a valid credit card number, so this
+# example will not return correct results.
+#
+###############################################################################
+
 from zinc import ZincSimpleOrder
 from multiprocessing import Pool
 import json
