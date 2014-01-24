@@ -395,7 +395,10 @@ class ZincWizard(object):
         collector = []
         for i in xrange(len(response["results"])):
             current = response["results"][i]
-            descriptions.append(str(i) + ") " + current["title"])
+            new_description = str(i) + ") " + current["title"]
+            if "price" in current:
+                new_description += ", " + current["price"]
+            descriptions.append(new_description)
             asin = self.get_asin(current["product_url"])
             collector.append(current["product_url"])
 
