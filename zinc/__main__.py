@@ -18,7 +18,7 @@ def main():
             default="amazon",
             action='store')
     parser.add_argument("-f", "--filename", help="The file which contains metadata such as shipping address, credit card information, and billing address. Contents should be in json format.",
-            default="~/.zincrc",
+            default=None,
             action='store')
 
     args = parser.parse_args()

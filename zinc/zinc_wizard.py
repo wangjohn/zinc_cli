@@ -114,13 +114,13 @@ class ZincWizard(object):
             "security_code": "Please input the CVV security code from your credit card",
             "end_message": "\nYou've finished entering your credit card information!"
             },
-        "write_to_zincrc": "Would you like to write the information you just entered to a configuration file (~/.zincrc) so you can make orders more easily in the future? We'll only include your shipping address and a hashed credit card token, so no confidential information will be written to your hard drive."
+        "write_to_zincrc": "Would you like to write the information you just entered to a configuration file (.zincrc) so you can make orders more easily in the future? We'll only include your shipping address and a hashed credit card token, so no confidential information will be written to your hard drive. (y)/n"
         }
 
     def __init__(self,
             retailer = "amazon",
             client_token = "public",
-            filename = "~/.zinrc",
+            filename = None,
             gift = None,
             ):
         self.retailer = retailer
@@ -135,8 +135,12 @@ class ZincWizard(object):
         self.shipping_address = None
 
     def get_stored_data(self, filename):
-        if os.path.isfile(filename):
+        default_filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.zincrc")
+        if filename != None and os.path.isfile(filename):
             with open(filename, 'rb') as f:
+                return json.loads(f.read())
+        elif os.path.isfile(default_filename):
+            with open(default_filename, 'rb') as f:
                 return json.loads(f.read())
         return {}
 
@@ -157,9 +161,9 @@ class ZincWizard(object):
         try:
             self.start_interactive_session()
         except ZincError as e:
-            print "\nUnfortunately there seemed to be an error\n"
-            print e
-            print "\nRestarting...\n"
+            self.print_indent("\nUnfortunately there seemed to be an error\n")
+            self.print_indent(str(e))
+            self.print_indent("\nRestarting...\n")
             self.start_interactive_session()
 
     def start_interactive_session(self):
@@ -311,12 +315,13 @@ class ZincWizard(object):
         self.print_indent("Total:            %s" % format_price(components["total"]))
 
     def write_to_zincrc(self):
-        if self.prompt_boolean(self.PROMPTS["write_to_zincrc"]):
+        filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.zincrc")
+        if not os.path.isfile(filename) and self.prompt_boolean(self.PROMPTS["write_to_zincrc"]):
             data = {
                 "shipping_address": self.shipping_address,
-                "cc_token": self.cc_token
+                "cc_token": self.retrieve_data("cc_token")
                 }
-            with open("~/.zincrc", 'wb') as f:
+            with open(filename, 'w+') as f:
                 f.write(json.dumps(data))
 
     def get_asin(self, product_url):
@@ -481,7 +486,6 @@ class AmazonDataFinder(object):
             return ret_description
         except Exception, err:
             return False
-
 
 if __name__ == '__main__':
     ZincWizard().start()
