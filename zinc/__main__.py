@@ -37,10 +37,7 @@ def main():
     else:
         ZincWizard(
                 product_url=args.product_url,
-                shipping_address=args.shipping_address,
-                credit_card=args.credit_card,
-                cc_token=args.credit_card_token,
-                billing_address=args.billing_address,
+                filename=args.filename,
                 gift=args.gift,
                 client_token=args.client_token
                 ).start()

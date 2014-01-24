@@ -1,6 +1,7 @@
 from zinc_request_processor import ZincRequestProcessor
 from format_price import format_price
 import sys
+import os
 import json
 
 WELCOME_BANNER = """
@@ -68,6 +69,8 @@ class ValidationHelpers(object):
 
 class ZincWizard(object):
     PROMPTS = {
+        "search_query": "What do you want to buy? (e.g. black boots)",
+        "select_product_name": "Here are your results. Please select a product to purchase.",
         "product_variants": "Please please enter a product URL.",
         "product_quantity": "How many would you like to purchase? (Default: 1)",
         "select_product_variants": "This item comes in multiple variants. Please choose an option.",
@@ -123,13 +126,15 @@ class ZincWizard(object):
         self.product_url = product_url
         self.retailer = retailer
         self.client_token = client_token
-        self.stored_data = get_stored_data(filename)
+        self.stored_data = self.get_stored_data(filename)
         self.cc_token = cc_token
         self.gift = gift
 
     def get_stored_data(self, filename):
-        with open(filename) as f:
-            return json.loads(f.read())
+        if os.path.isfile(filename):
+            with open(filename, 'rb') as f:
+                return json.loads(f.read())
+        return {}
 
     def retrieve_data(self, key):
         if key in self.stored_data:
@@ -147,6 +152,7 @@ class ZincWizard(object):
 
     def start(self):
         print WELCOME_BANNER
+        self.get_product_name(self.response_data)
         self.get_product_variants(self.response_data)
         self.get_shipping_methods(self.response_data)
         self.get_store_card(self.response_data)
@@ -171,10 +177,19 @@ class ZincWizard(object):
             return True
         return False
 
-    def get_product_variants(self, response_data):
-        if self.product_url == None:
-            self.product_url = self.prompt(self.PROMPTS["product_variants"])
+    def get_product_name(self, response_data):
+        search_query = self.prompt(self.PROMPTS["search_query"])
+        print "\nProcessing request...\n"
+        product_name_response = ZincRequestProcessor.process("search_products", {
+                "client_token": self.client_token,
+                "retailer": self.retailer,
+                "search_query": search_query
+            })
 
+        response_data["product_name_response"] = product_name_response
+        self.product_url = self.select_product_name(product_name_response)
+
+    def get_product_variants(self, response_data):
         print "\nProcessing request...\n"
         variants_response = ZincRequestProcessor.process("variant_options", {
                     "client_token": self.client_token,
@@ -321,6 +336,26 @@ class ZincWizard(object):
         prompt += "\n".join(description_list)
         return prompt
 
+    def get_quantity(self):
+        quantity = self.prompt(self.PROMPTS["product_quantity"]).strip()
+        if quantity == "":
+            return 1
+        else:
+            return quantity
+
+    def select_product_name(self, response):
+        descriptions = []
+        collector = []
+        for i in xrange(len(response["results"])):
+            current = response["results"][i]
+            descriptions.append(str(i) + ") " + current["title"])
+            collector.append(current["product_url"])
+
+        prompt = self.build_prompt(self.PROMPTS["select_product_name"], descriptions)
+        collected_number = self.prompt(prompt,
+                ValidationHelpers.validate_number(len(descriptions)-1))
+        return collector[int(collected_number)]
+
     def select_product_variants(self, variants_response):
         descriptions = []
         product_ids = []
@@ -348,13 +383,6 @@ class ZincWizard(object):
                 "product_id": chosen_product_id,
                 "quantity": quantity
                 }]
-
-    def get_quantity(self):
-        quantity = self.prompt(self.PROMPTS["product_quantity"]).strip()
-        if quantity == "":
-            return 1
-        else:
-            return quantity
 
     def select_shipping_methods(self, shipping_response):
         descriptions = []
