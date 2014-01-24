@@ -75,6 +75,11 @@ class ZincWizard(object):
         "security_code": "Please enter the CVV security code on your credit card.",
         "place_order": "Would you like to place this order? (y)/n",
         "gift": "Do you want this to be shipped as a gift? (y)/n",
+        "retailer_credentials": {
+            "start_message": "Would you like to use your Amazon credentials to make the purchase? (y)/n",
+            "username": "What is your Amazon username?",
+            "password": "What is your Amazon password?"
+            },
         "shipping_address": {
             "start_message": "\nNow we'd like to get your shipping information.",
             "end_message": "\nYou've finished entering your shipping address!"
