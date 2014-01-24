@@ -1,4 +1,4 @@
-from zinc_request_processor import ZincRequestProcessor
+from zinc_request_processor import ZincRequestProcessor, ZincError
 from format_price import format_price
 from getpass import getpass
 import sys
@@ -70,7 +70,7 @@ class ValidationHelpers(object):
 
 class ZincWizard(object):
     PROMPTS = {
-        "search_query": "What do you want to buy? (e.g. black boots)",
+        "search_query": "What do you want to buy? (e.g. black cup)",
         "select_product_name": "Here are your results. Please select a product to purchase.",
         "product_variants": "Please please enter a product URL.",
         "product_quantity": "How many would you like to purchase? (Default: 1)",
@@ -149,13 +149,18 @@ class ZincWizard(object):
 
     def start(self):
         print WELCOME_BANNER
-        self.get_product_name(self.response_data)
-        self.get_product_variants(self.response_data)
-        self.get_retailer_credentials(self.response_data)
-        self.get_shipping_methods(self.response_data)
-        self.get_store_card(self.response_data)
-        self.get_review_order(self.response_data)
-        self.get_place_order(self.response_data)
+        try:
+            self.get_product_name(self.response_data)
+            self.get_product_variants(self.response_data)
+            self.get_retailer_credentials(self.response_data)
+            self.get_shipping_methods(self.response_data)
+            self.get_store_card(self.response_data)
+            self.get_review_order(self.response_data)
+            self.get_place_order(self.response_data)
+        except ZincError as e:
+            print e
+            print "\nRestarting...\n"
+            self.start()
 
     def prompt(self, prompt, validation=None, max_attempts=3, password=False):
         attempts = 0
