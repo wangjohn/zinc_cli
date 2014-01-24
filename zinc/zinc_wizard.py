@@ -1,5 +1,6 @@
 from zinc_request_processor import ZincRequestProcessor
 from format_price import format_price
+from getpass import getpass
 import sys
 import os
 import json
@@ -79,9 +80,8 @@ class ZincWizard(object):
         "place_order": "Would you like to place this order? (y)/n",
         "gift": "Do you want this to be shipped as a gift? (y)/n",
         "retailer_credentials": {
-            "start_message": "Would you like to use your Amazon credentials to make the purchase? (y)/n",
-            "username": "What is your Amazon username?",
-            "password": "What is your Amazon password?"
+            "email": "Please enter your Amazon username (usually your email)",
+            "password": "Please enter your Amazon password"
             },
         "shipping_address": {
             "start_message": "\nNow we'd like to get your shipping information.",
@@ -154,15 +154,19 @@ class ZincWizard(object):
         print WELCOME_BANNER
         self.get_product_name(self.response_data)
         self.get_product_variants(self.response_data)
+        self.get_retailer_credentials(self.response_data)
         self.get_shipping_methods(self.response_data)
         self.get_store_card(self.response_data)
         self.get_review_order(self.response_data)
         self.get_place_order(self.response_data)
 
-    def prompt(self, prompt, validation=None, max_attempts=3):
+    def prompt(self, prompt, validation=None, max_attempts=3, password=False):
         attempts = 0
         while True:
-            raw = raw_input(prompt + "\n")
+            if password:
+                raw = getpass(prompt + "\n")
+            else:
+                raw = raw_input(prompt + "\n")
             if (validation == None) or (validation != None and validation(raw)):
                 return raw
             else:
@@ -199,6 +203,15 @@ class ZincWizard(object):
         response_data["variant_options_response"] = variants_response
         response_data["products"] = self.select_product_variants(variants_response)
 
+    def get_retailer_credentials(self, response_data):
+        print "\nProcessing request...\n"
+        email = self.prompt(self.PROMPTS["retailer_credentials"]["email"])
+        password = self.prompt(self.PROMPTS["retailer_credentials"]["password"], password=True)
+        response_data["retailer_credentials"] = {
+                "email": email,
+                "password": password
+                }
+
     def get_shipping_methods(self, response_data):
         self.shipping_address = self.retrieve_data("shipping_address")
         print "\nProcessing request...\n"
@@ -206,7 +219,8 @@ class ZincWizard(object):
                     "client_token": self.client_token,
                     "retailer": self.retailer,
                     "products": response_data["products"],
-                    "shipping_address": self.shipping_address
+                    "shipping_address": self.shipping_address,
+                    "retailer_credentials": response_data["retailer_credentials"]
                 })
 
         response_data["shipping_response"] = shipping_response
@@ -244,7 +258,8 @@ class ZincWizard(object):
                     "is_gift": is_gift,
                     "shipping_method_id": response_data["shipping_method_id"],
                     "payment_method": payment_method,
-                    "customer_email": "support@zinc.io"
+                    "customer_email": "support@zinc.io",
+                    "retailer_credentials": response_data["retailer_credentials"]
                 })
 
         response_data["review_order_response"] = review_order_response
