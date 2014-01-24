@@ -1,0 +1,27 @@
+{
+  "shipping_address": {
+    "first_name": "Ben",
+    "last_name": "Bitdiddle",
+    "address_line1": "77 Massachusetts Avenue",
+    "address_line2": "",
+    "zip_code": "02139",
+    "city": "Cambridge", 
+    "state": "MA",
+    "country": "US"
+  },
+  "billing_address": {
+    "first_name": "Ben",
+    "last_name": "Bitdiddle",
+    "address_line1": "77 Massachusetts Avenue",
+    "address_line2": "",
+    "zip_code": "02139",
+    "city": "Cambridge", 
+    "state": "MA",
+    "country": "US"
+  },
+  "credit_card": {
+    "number": "5555555555554444",
+    "expiration_month": "1",
+    "expiration_year": "2015"
+  }
+}

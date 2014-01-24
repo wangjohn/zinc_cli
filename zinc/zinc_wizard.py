@@ -4,8 +4,8 @@ from getpass import getpass
 import sys
 import os
 import json
-import requests
 import re
+from subprocess import call
 import urllib
 import urllib2
 
@@ -155,6 +155,8 @@ class ZincWizard(object):
                 return self.shipping_address
             else:
                 return self.get_address(key)
+        elif key == "credit_card":
+            return self.get_credit_card_information()
 
     def start(self):
         print WELCOME_BANNER
@@ -218,6 +220,7 @@ class ZincWizard(object):
         asin = self.get_asin(self.product_url)
         product_info = None
         if asin != None:
+            print call(["curl", "http://ihmage.com/" + asin + "?size=25"])
             product_info = AmazonDataFinder.get_amazon_data(asin)
         variants_response = async_response.get_response()
         response_data["variant_options_response"] = variants_response
@@ -248,7 +251,7 @@ class ZincWizard(object):
     def get_store_card(self, response_data):
         cc_token = self.retrieve_data("cc_token")
         if cc_token == None:
-            cc_data = self.get_credit_card_information()
+            cc_data = self.retrieve_data("credit_card")
             self.billing_address = self.retrieve_data("billing_address")
             print "\nProcessing request...\n"
             store_card_response = ZincRequestProcessor.process("store_card", {

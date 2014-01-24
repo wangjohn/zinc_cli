@@ -1,7 +1,7 @@
 Welcome to Zinc
 ===============
 
-`Zinc <http://zinc.io/>`_ is an API for making e-commerce purchases. This package allows you to easily access the API and make purchases on Amazon through the command line. It also offers wrappers around the Zinc API that can be used easily in python code. 
+`Zinc <http://zinc.io/>`_ is an API for making e-commerce purchases. This package allows you to easily access the API and make purchases on Amazon through the command line. It also offers wrappers around the Zinc API that can be used easily in python code.
 
 The module features:
   - Interactive wizard for purchasing Amazon items from the command line
@@ -13,39 +13,51 @@ Quick Start
 
 For starting quickly, you can either clone the repo or use the pip python package manager.::
 
-  pip install zinc
+  sudo pip install zinc
 
 Once you've installed the Zinc module, you can start using it like so::
 
   python -m zinc
 
-This will bring up an interactive wizard interface that you can use the make Amazon purchases. Just grab the URL for any product on Amazon, and following the instructions in the wizard. You'll be able to make a purchase directly in your terminal!
+This will bring up an interactive wizard interface that you can use the make Amazon purchases. Follow the instructions in the wizard, and you'll be able to make a purchase directly from your terminal!
 
 CLI Options
 ===========
 
-There are other ways of using the Zinc CLI. You can create json files for your shipping address, billing address, and credit card information so you don't have to type them in every time you make an order. You can run `python -m zinc -h` to get help for the commands that you can use.
-
-For example, I might have the file `/home/john/zinc_cli/examples/shipping_address.json` with the following contents::
+There are other ways of using the Zinc CLI. You can create a json file which will store your shipping and billing information. You can run `python -m zinc -h` to get help for the commands that you can use. For example, I might have the file `/home/john/zinc_cli/examples/my_information.json` with the following contents::
 
   {
-    "first_name": "Tim",
-    "last_name": "Beaver",
-    "address_line1": "77 Massachusetts Avenue",
-    "address_line2": "",
-    "zip_code": "02139",
-    "city": "Cambridge",·
-    "state": "MA",
-    "country": "US"
+    "shipping_address": {
+      "first_name": "Tim",
+      "last_name": "Beaver",
+      "address_line1": "77 Massachusetts Avenue",
+      "address_line2": "",
+      "zip_code": "02139",
+      "city": "Cambridge",·
+      "state": "MA",
+      "country": "US"
+    },
+    "billing_address": {
+      "first_name": "Alyssa",
+      "last_name": "Hacker",
+      "address_line1": "77 Massachusetts Avenue",
+      "address_line2": "",
+      "zip_code": "02139",
+      "city": "Cambridge",·
+      "state": "MA",
+      "country": "US"
+    }
   }
 
-Then I could run the cli with the `-sa` option pointing to this shipping address file::
+Then I could run the cli with the `-f` option pointing to this shipping address file so that I wouldn't have to enter my shipping address again in the interactive wizard::
 
-  python -m zinc -sa /home/john/zinc_cli/examples/shipping_address.json
+  python -m zinc -f /home/john/zinc_cli/examples/my_information.json
 
-You can do the same things for billing address and credit card information. The `examples` folder has a number examples that you can try. For example, if you wanted to place an Amazon order for clothing hangers with pre-populated shipping address and credit card information, you could do::
+You can include credit card information if you'd like, but we highly discourage it. It's not a good idea to leave your credit card information on your hard drive in plaintext.
 
-  python -m zinc -p http://www.amazon.com/Honey-Can-Do-HNGZ01523-Light-Weight-Plastic-Hangers/dp/B0037QGRR4 -sa examples/shipping_address.json -c examples/credit_card.json
+The `examples` folder has a number of example files that have fake prepopulated information that you can try. For example, if you wanted to place an Amazon order for clothing hangers with pre-populated shipping address and credit card information, you could do::
+
+  python -m zinc -f examples/sample_information.json
 
 Simple Order
 ============
