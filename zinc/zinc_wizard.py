@@ -74,8 +74,8 @@ class ValidationHelpers(object):
 
 class ZincWizard(object):
     PROMPTS = {
-        "search_query": "What do you want to buy? (e.g. inflatable banana )",
-        "select_product_name": "Please select a result:"
+        "search_query": "What do you want to buy? (e.g. inflatable banana)",
+        "select_product_name": "Please select a result:",
         "product_variants": "Please please enter a product URL.",
         "product_quantity": "How many would you like to purchase? [1]",
         "select_product_variants": "This item comes in multiple variants. Please choose an option.",
