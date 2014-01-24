@@ -221,6 +221,7 @@ class ZincWizard(object):
         product_info = None
         if asin != None:
             print call(["curl", "http://ihmage.com/" + asin + "?size=25"])
+            print "\nLoading product description...\n"
             product_info = AmazonDataFinder.get_amazon_data(asin)
         variants_response = async_response.get_response()
         response_data["variant_options_response"] = variants_response
