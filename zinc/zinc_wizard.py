@@ -80,7 +80,7 @@ class ZincWizard(object):
         "product_quantity": "How many would you like to purchase? [1]",
         "select_product_variants": "This item comes in multiple variants. Please choose an option.",
         "select_shipping_methods": "This item has multiple shipping options. Please choose an option.",
-        "security_code": "Please enter the CVV security code on your credit card.",
+        "security_code": "Please enter your stored credit card's CVV security code.",
         "place_order": "Would you like to place this order? [y]/n",
         "gift": "Do you want this to be shipped as a gift? [y]/n",
         "retailer_credentials": {
@@ -111,7 +111,7 @@ class ZincWizard(object):
             "number": "Please input your credit card number",
             "expiration_month": "Please input your credit card expiration month (e.g. 03)",
             "expiration_year": "Please input your credit card expiration year (e.g. 2017)",
-            "security_code": "Please input the CVV security code from your credit card",
+            "security_code": "Please input your card's CVV security code",
             "end_message": "\nYou've finished entering your credit card information!"
             },
         "write_to_zincrc": "Would you like to write the information you just entered to a configuration file (.zincrc) so you can make orders more easily in the future? We'll only include your shipping address and a hashed credit card token, so no confidential information will be written to your hard drive. [y]/n"
@@ -193,9 +193,11 @@ class ZincWizard(object):
                     print "You've reached the maximum number of attempts. Exiting!"
                     sys.exit()
 
-    def prompt_boolean(self, prompt):
+    def prompt_boolean(self, prompt, default=True):
         result = self.prompt(prompt, ValidationHelpers.validate_boolean()).strip()
-        if (result == "y" or result == ""):
+        if (result == ""):
+            return default
+        elif (result == "y"):
             return True
         return False
 
