@@ -129,6 +129,7 @@ class ZincWizard(object):
         self.stored_data = self.get_stored_data(filename)
         self.cc_token = cc_token
         self.gift = gift
+        self.async_responses = {}
 
     def get_stored_data(self, filename):
         if os.path.isfile(filename):
@@ -215,7 +216,7 @@ class ZincWizard(object):
     def get_shipping_methods(self, response_data):
         self.shipping_address = self.retrieve_data("shipping_address")
         print "\nProcessing request...\n"
-        shipping_response = ZincRequestProcessor.process("shipping_methods", {
+        shipping_response = ZincRequestProcessor.process_async("shipping_methods", {
                     "client_token": self.client_token,
                     "retailer": self.retailer,
                     "products": response_data["products"],
@@ -223,8 +224,7 @@ class ZincWizard(object):
                     "retailer_credentials": response_data["retailer_credentials"]
                 })
 
-        response_data["shipping_response"] = shipping_response
-        response_data["shipping_method_id"] = self.select_shipping_methods(shipping_response)
+        self.async_responses["shipping_response"] = shipping_response
 
     def get_store_card(self, response_data):
         if self.cc_token == None:
@@ -244,6 +244,8 @@ class ZincWizard(object):
             self.cc_token = store_card_response["cc_token"]
 
     def get_review_order(self, response_data):
+        shipping_method_id = self.select_shipping_methods(
+                self.async_responses["shipping_response"].get_response())
         payment_method = {
                 "cc_token": self.cc_token,
                 "security_code": self.get_security_code()
@@ -256,7 +258,7 @@ class ZincWizard(object):
                     "products": response_data["products"],
                     "shipping_address": self.shipping_address,
                     "is_gift": is_gift,
-                    "shipping_method_id": response_data["shipping_method_id"],
+                    "shipping_method_id": shipping_method_id,
                     "payment_method": payment_method,
                     "customer_email": "support@zinc.io",
                     "retailer_credentials": response_data["retailer_credentials"]
