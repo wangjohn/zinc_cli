@@ -114,21 +114,19 @@ class ZincWizard(object):
         }
 
     def __init__(self,
-            product_url = None,
             retailer = "amazon",
             client_token = "public",
             filename = "~/.zinrc",
-            cc_token = None,
             gift = None,
             ):
-        self.response_data = {}
-        self.security_code = None
-        self.product_url = product_url
         self.retailer = retailer
         self.client_token = client_token
         self.stored_data = self.get_stored_data(filename)
-        self.cc_token = cc_token
         self.gift = gift
+
+        self.response_data = {}
+        self.product_url = None
+        self.security_code = None
         self.async_responses = {}
 
     def get_stored_data(self, filename):
@@ -148,8 +146,6 @@ class ZincWizard(object):
                 return self.response_data["shipping_address"]
             else:
                 return self.get_address(key)
-        elif key == "credit_card":
-            return self.get_credit_card_information()
 
     def start(self):
         print WELCOME_BANNER
@@ -227,8 +223,9 @@ class ZincWizard(object):
         self.async_responses["shipping_response"] = shipping_response
 
     def get_store_card(self, response_data):
-        if self.cc_token == None:
-            cc_data = self.retrieve_data("credit_card")
+        cc_token = self.retrieve_data("cc_token")
+        if cc_token == None:
+            cc_data = self.get_credit_card_information()
             self.billing_address = self.retrieve_data("billing_address")
             print "\nProcessing request...\n"
             store_card_response = ZincRequestProcessor.process("store_card", {
@@ -241,13 +238,13 @@ class ZincWizard(object):
                     })
 
             response_data["store_card_response"] = store_card_response
-            self.cc_token = store_card_response["cc_token"]
+            self.stored_data["cc_token"] = store_card_response["cc_token"]
 
     def get_review_order(self, response_data):
         shipping_method_id = self.select_shipping_methods(
                 self.async_responses["shipping_response"].get_response())
         payment_method = {
-                "cc_token": self.cc_token,
+                "cc_token": self.retrieve_data("cc_token"),
                 "security_code": self.get_security_code()
                 }
         is_gift = self.get_is_gift()

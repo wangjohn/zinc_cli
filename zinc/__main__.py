@@ -8,26 +8,17 @@ def main():
     parser.add_argument("-s", "--simple_order", help="Place an order using the simple order format, must use either the '-f' or '-d' option with this.",
             default=False,
             action='store')
-    parser.add_argument("-p", "--product_url", help="The url to the Amazon product",
-            default=None,
-            action='store')
     parser.add_argument("-g", "--gift", help="Use this option to send the item as a gift",
             default=None,
             action='store_true')
     parser.add_argument("-t", "--client_token", help="Use a client token from Zinc to place your orders using your Amazon account. Contact support@zinc.io to get a client token.",
             default="public",
             action='store')
-    parser.add_argument("-cct", "--credit_card_token", help="A token to use to access stored billing information through Zinc's API",
-            default=None,
-            action='store')
     parser.add_argument("-r", "--retailer", help="Change the retailer you're buying from",
             default="amazon",
             action='store')
     parser.add_argument("-f", "--filename", help="The file which contains metadata such as shipping address, credit card information, and billing address. Contents should be in json format.",
             default="~/.zincrc",
-            action='store')
-    parser.add_argument("-d", "--data", help="Data for the order. Must be in json format.",
-            default=None,
             action='store')
 
     args = parser.parse_args()
@@ -36,23 +27,16 @@ def main():
         simple_order_main(args)
     else:
         ZincWizard(
-                product_url=args.product_url,
                 filename=args.filename,
+                retailer=args.retailer,
                 gift=args.gift,
                 client_token=args.client_token
                 ).start()
 
 def simple_order_main(args):
-    if args.filename != None and args.data != None:
-        raise Exception("You must specify either filename '-f' or data '-d', but not both.")
-    elif args.filename == None and args.data == None:
-        raise Exception("You must specify either filename '-f' or data '-d'.")
-    elif args.filename != None:
-        print "Placing your order from file: '%s'" % args.filename
-        print_order_result(ZincSimpleOrder().process_file(args.filename))
-    else:
-        print "Placing your order!"
-        print_order_result(ZincSimpleOrder().process_json(args.data))
+    if args.filename == None:
+        raise Exception("You must specify a filename '-f' to read data from when using the '-s' simple order option.")
+    print_order_result(ZincSimpleOrder().process_file(args.filename))
 
 def print_order_result(result):
     print "Merchant Order Id:", format_price(result["merchant_order"]["merchant_order_id"])
