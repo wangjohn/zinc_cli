@@ -11,15 +11,6 @@ def main():
     parser.add_argument("-p", "--product_url", help="The url to the Amazon product",
             default=None,
             action='store')
-    parser.add_argument("-sa", "--shipping_address", help="The file where you've stored your shipping address information",
-            default=None,
-            action='store')
-    parser.add_argument("-c", "--credit_card", help="The file where you've stored your credit card information",
-            default=None,
-            action='store')
-    parser.add_argument("-ba", "--billing_address", help="The file where you've stored your billing address information",
-            default=None,
-            action='store')
     parser.add_argument("-g", "--gift", help="Use this option to send the item as a gift",
             default=None,
             action='store_true')
@@ -32,10 +23,10 @@ def main():
     parser.add_argument("-r", "--retailer", help="Change the retailer you're buying from",
             default="amazon",
             action='store')
-    parser.add_argument("-f", "--filename", help="The filename of the simple order. Contents should be in json format.",
-            default=None,
+    parser.add_argument("-f", "--filename", help="The file which contains metadata such as shipping address, credit card information, and billing address. Contents should be in json format.",
+            default="~/.zincrc",
             action='store')
-    parser.add_argument("-d", "--data", help="Data for the simple order. Must be in json format.",
+    parser.add_argument("-d", "--data", help="Data for the order. Must be in json format.",
             default=None,
             action='store')
 

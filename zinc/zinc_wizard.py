@@ -106,17 +106,15 @@ class ZincWizard(object):
             "expiration_year": "Please input your credit card expiration year (e.g. 2017)",
             "security_code": "Please input the CVV security code from your credit card",
             "end_message": "\nYou've finished entering your credit card information!"
-            }
+            },
+        "write_to_zincrc": "Would you like to write the information you just entered to a configuration file (~/.zincrc) so you can make orders more easily in the future? We'll only include your shipping address and a hashed credit card token, so no confidential information will be written to your hard drive."
         }
 
     def __init__(self,
             product_url = None,
             retailer = "amazon",
             client_token = "public",
-            shipping_address = None,
-            billing_address = None,
-            retailer_credentials = None,
-            credit_card = None,
+            filename = "~/.zinrc",
             cc_token = None,
             gift = None,
             ):
@@ -125,12 +123,27 @@ class ZincWizard(object):
         self.product_url = product_url
         self.retailer = retailer
         self.client_token = client_token
-        self.shipping_address = shipping_address
-        self.billing_address = billing_address
-        self.retailer_credentials = retailer_credentials
-        self.credit_card = credit_card
+        self.stored_data = get_stored_data(filename)
         self.cc_token = cc_token
         self.gift = gift
+
+    def get_stored_data(self, filename):
+        with open(filename) as f:
+            return json.loads(f.read())
+
+    def retrieve_data(self, key):
+        if key in self.stored_data:
+            return self.stored_data[key]
+        elif key == "shipping_address":
+            print self.PROMPTS[key]["start_message"]
+            return self.get_address(key)
+        elif key == "billing_address":
+            if self.prompt_boolean(self.PROMPTS[key]["start_message"]):
+                return self.response_data["shipping_address"]
+            else:
+                return self.get_address(key)
+        elif key == "credit_card":
+            return self.get_credit_card_information()
 
     def start(self):
         print WELCOME_BANNER
@@ -172,39 +185,38 @@ class ZincWizard(object):
         response_data["products"] = self.select_product_variants(variants_response)
 
     def get_shipping_methods(self, response_data):
-        shipping_address = self.load_file_contents("shipping_address")
+        self.shipping_address = self.retrieve_data("shipping_address")
         print "\nProcessing request...\n"
         shipping_response = ZincRequestProcessor.process("shipping_methods", {
                     "client_token": self.client_token,
                     "retailer": self.retailer,
                     "products": response_data["products"],
-                    "shipping_address": shipping_address
+                    "shipping_address": self.shipping_address
                 })
 
         response_data["shipping_response"] = shipping_response
-        response_data["shipping_address"] = shipping_address
         response_data["shipping_method_id"] = self.select_shipping_methods(shipping_response)
 
     def get_store_card(self, response_data):
         if self.cc_token == None:
-            cc_data = self.load_file_contents("credit_card")
-            billing_address = self.load_file_contents("billing_address")
+            cc_data = self.retrieve_data("credit_card")
+            self.billing_address = self.retrieve_data("billing_address")
             print "\nProcessing request...\n"
             store_card_response = ZincRequestProcessor.process("store_card", {
                         "client_token": self.client_token,
                         "retailer": self.retailer,
-                        "billing_address": billing_address,
+                        "billing_address": self.billing_address,
                         "number": cc_data["number"],
                         "expiration_month": cc_data["expiration_month"],
                         "expiration_year": cc_data["expiration_year"]
                     })
 
             response_data["store_card_response"] = store_card_response
-            response_data["cc_token"] = store_card_response["cc_token"]
+            self.cc_token = store_card_response["cc_token"]
 
     def get_review_order(self, response_data):
         payment_method = {
-                "cc_token": response_data["cc_token"],
+                "cc_token": self.cc_token,
                 "security_code": self.get_security_code()
                 }
         is_gift = self.get_is_gift()
@@ -213,7 +225,7 @@ class ZincWizard(object):
                     "client_token": self.client_token,
                     "retailer": self.retailer,
                     "products": response_data["products"],
-                    "shipping_address": response_data["shipping_address"],
+                    "shipping_address": self.shipping_address,
                     "is_gift": is_gift,
                     "shipping_method_id": response_data["shipping_method_id"],
                     "payment_method": payment_method,
@@ -223,6 +235,7 @@ class ZincWizard(object):
         response_data["review_order_response"] = review_order_response
 
     def get_place_order(self, response_data):
+        self.write_to_zincrc()
         self.print_price_components(response_data)
         if self.prompt_boolean(self.PROMPTS["place_order"]):
             print "\nProcessing request...\n"
@@ -248,6 +261,15 @@ class ZincWizard(object):
             self.print_indent("Promotion:        %s" % format_price(components["promotion"]))
         self.print_indent("Total:            %s" % format_price(components["total"]))
 
+    def write_to_zincrc(self):
+        if self.prompt_boolean(self.PROMPTS["write_to_zincrc"]):
+            data = {
+                "shipping_address": self.shipping_address,
+                "cc_token": self.cc_token
+                }
+            with open("~/.zincrc", 'wb') as f:
+                f.write(json.dumps(data))
+
     def print_indent(self, value):
         print "    ", value
 
@@ -260,21 +282,6 @@ class ZincWizard(object):
         if self.security_code != None:
             return self.security_code
         return self.prompt(self.PROMPTS["security_code"])
-
-    def load_file_contents(self, filetype):
-        if getattr(self, filetype) != None:
-            with open(getattr(self, filetype), 'rb') as f:
-                return json.loads(f.read())
-        elif filetype == "shipping_address":
-            print self.PROMPTS[filetype]["start_message"]
-            return self.get_address(filetype)
-        elif filetype == "billing_address":
-            if self.prompt_boolean(self.PROMPTS[filetype]["start_message"]):
-                return self.response_data["shipping_address"]
-            else:
-                return self.get_address(filetype)
-        elif filetype == "credit_card":
-            return self.get_credit_card_information()
 
     def get_credit_card_information(self):
         print self.PROMPTS["credit_card"]["start_message"]
