@@ -74,21 +74,21 @@ class ValidationHelpers(object):
 
 class ZincWizard(object):
     PROMPTS = {
-        "search_query": "What do you want to buy? (e.g. black cup)",
-        "select_product_name": "Here are your results. Please select a product to purchase.",
+        "search_query": "What do you want to buy? (e.g. inflatable banana )",
+        "select_product_name": "Please select a result:"
         "product_variants": "Please please enter a product URL.",
-        "product_quantity": "How many would you like to purchase? (Default: 1)",
+        "product_quantity": "How many would you like to purchase? [1]",
         "select_product_variants": "This item comes in multiple variants. Please choose an option.",
         "select_shipping_methods": "This item has multiple shipping options. Please choose an option.",
-        "security_code": "Please enter the CVV security code on your credit card.",
-        "place_order": "Would you like to place this order? (y)/n",
-        "gift": "Do you want this to be shipped as a gift? (y)/n",
+        "security_code": "Please enter your stored credit card's CVV security code.",
+        "place_order": "Would you like to place this order? [y]/n",
+        "gift": "Do you want this to be shipped as a gift? [y]/n",
         "retailer_credentials": {
-            "email": "Please enter your Amazon username (usually your email)",
+            "email": "Please enter your Amazon username (email address)",
             "password": "Please enter your Amazon password"
             },
         "shipping_address": {
-            "start_message": "\nNow we'd like to get your shipping information. Don't worry if you make a mistake, we'll ask you to verify the correctness of your address so you can retype it if you'd like.\n",
+            "start_message": "\nPlease enter your shipping information. If you make a mistake, it may be corrected at the end of this section.\n",
             "end_message": "\nYou've finished entering your shipping address!"
             },
         "address": {
@@ -100,22 +100,23 @@ class ZincWizard(object):
             "state": "Please input your state (e.g. CA, MA, etc.):",
             "zip_code": "Please input your zip code:",
             "country": "Please input your country (e.g. US):",
-            "confirmation_message": "Is this your correct shipping address? (y)/n"
+            "confirmation_message": "Is this your correct shipping address? [y]/n"
             },
         "billing_address" : {
-            "start_message": "\nIs your billing address the same as your shipping address? (y)/n",
+            "start_message": "\nIs your billing address the same as your shipping address? [y]/n",
             "end_message": "\nYou've finished entering you billing address!"
             },
         "credit_card": {
-            "start_message": "\nNow we'd like to get your credit card information.",
+            "start_message": "\nThe retailer requires a credit card for this purchase.",
             "number": "Please input your credit card number",
             "expiration_month": "Please input your credit card expiration month (e.g. 03)",
             "expiration_year": "Please input your credit card expiration year (e.g. 2017)",
-            "security_code": "Please input the CVV security code from your credit card",
+            "security_code": "Please input your card's CVV security code",
             "end_message": "\nYou've finished entering your credit card information!"
             },
-        "write_to_zincrc": "Would you like to write the information you just entered to a configuration file (.zincrc) so you can make orders more easily in the future? We'll only include your shipping address and a hashed credit card token, so no confidential information will be written to your hard drive. (y)/n"
+        "write_to_zincrc": "Would you like to write the information you just entered to a configuration file (.zincrc) so you can make orders more easily in the future? We'll only include your shipping address and a hashed credit card token, so no confidential information will be written to your hard drive. [y]/n"
         }
+    MAX_IHMAGE_WIDTH = 50
 
     def __init__(self,
             retailer = "amazon",
@@ -192,9 +193,11 @@ class ZincWizard(object):
                     print "You've reached the maximum number of attempts. Exiting!"
                     sys.exit()
 
-    def prompt_boolean(self, prompt):
+    def prompt_boolean(self, prompt, default=True):
         result = self.prompt(prompt, ValidationHelpers.validate_boolean()).strip()
-        if (result == "y" or result == ""):
+        if (result == ""):
+            return default
+        elif (result == "y"):
             return True
         return False
 
@@ -220,7 +223,9 @@ class ZincWizard(object):
         asin = self.get_asin(self.product_url)
         product_info = None
         if asin != None:
-            print call(["curl", "http://ihmage.com/" + asin + "?size=25"])
+            term_width = InterfaceHelpers.get_terminal_size()[0]
+            size = min(term_width/3,self.MAX_IHMAGE_WIDTH)
+            call(["curl", "http://ihmage.com/" + asin + "?size="+str(size)])
             print "\nLoading product information...\n"
             product_info = AmazonDataFinder.get_amazon_data(asin)
         variants_response = async_response.get_response()
@@ -490,6 +495,32 @@ class AmazonDataFinder(object):
             return ret_description
         except Exception, err:
             return False
+
+class InterfaceHelpers(object):
+    @classmethod
+    def get_terminal_size(klass):
+        import os
+        env = os.environ
+        def ioctl_GWINSZ(fd):
+            try:
+                import fcntl, termios, struct, os
+                cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
+            '1234'))
+            except:
+                return
+            return cr
+        cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
+        if not cr:
+            try:
+                fd = os.open(os.ctermid(), os.O_RDONLY)
+                cr = ioctl_GWINSZ(fd)
+                os.close(fd)
+            except:
+                pass
+        if not cr:
+            ### Use get(key[, default]) instead of a try/catch
+            cr = (env.get('LINES', 25), env.get('COLUMNS', 80))
+        return int(cr[1]), int(cr[0])
 
 if __name__ == '__main__':
     ZincWizard().start()
