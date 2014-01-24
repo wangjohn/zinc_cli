@@ -84,7 +84,7 @@ class ZincWizard(object):
             "password": "Please enter your Amazon password"
             },
         "shipping_address": {
-            "start_message": "\nNow we'd like to get your shipping information.",
+            "start_message": "\nNow we'd like to get your shipping information. Don't worry if you make a mistake, we'll ask you to verify the correctness of your address and you can retype it if you'd like.",
             "end_message": "\nYou've finished entering your shipping address!"
             },
         "address": {
@@ -128,6 +128,7 @@ class ZincWizard(object):
         self.product_url = None
         self.security_code = None
         self.async_responses = {}
+        self.shipping_address = None
 
     def get_stored_data(self, filename):
         if os.path.isfile(filename):
@@ -143,7 +144,7 @@ class ZincWizard(object):
             return self.get_address(key)
         elif key == "billing_address":
             if self.prompt_boolean(self.PROMPTS[key]["start_message"]):
-                return self.response_data["shipping_address"]
+                return self.shipping_address
             else:
                 return self.get_address(key)
 
