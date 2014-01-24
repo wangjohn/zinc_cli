@@ -19,10 +19,10 @@ class ZincAsyncRequest(object):
         self.start_time = start_time
 
     def finished(self):
-        self.abstract_processor.finished(self.url, self.request_id)
+        return self.abstract_processor.finished(self.url, self.request_id)
 
     def get_response(self):
-        self.abstract_processor.wait_for_response(self.url, self.request_id, self.start_time)
+        return self.abstract_processor.wait_for_response(self.url, self.request_id, self.start_time)
 
 class ZincRequestProcessor(object):
     """Processor for Zinc API requests.

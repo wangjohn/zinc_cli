@@ -4,6 +4,10 @@ from getpass import getpass
 import sys
 import os
 import json
+import requests
+import re
+import urllib
+import urllib2
 
 WELCOME_BANNER = """
  ____      ____             __                             
@@ -84,7 +88,7 @@ class ZincWizard(object):
             "password": "Please enter your Amazon password"
             },
         "shipping_address": {
-            "start_message": "\nNow we'd like to get your shipping information. Don't worry if you make a mistake,\nwe'll ask you to verify the correctness of your address so you can retype it if you'd like.",
+            "start_message": "\nNow we'd like to get your shipping information. Don't worry if you make a mistake, we'll ask you to verify the correctness of your address so you can retype it if you'd like.\n",
             "end_message": "\nYou've finished entering your shipping address!"
             },
         "address": {
@@ -153,10 +157,10 @@ class ZincWizard(object):
         try:
             self.start_interactive_session()
         except ZincError as e:
-            print "\nUnfortunately there seemed to be an error"
+            print "\nUnfortunately there seemed to be an error\n"
             print e
             print "\nRestarting...\n"
-            self.start()
+            self.start_interactive_session()
 
     def start_interactive_session(self):
         self.get_product_name(self.response_data)
@@ -202,13 +206,18 @@ class ZincWizard(object):
 
     def get_product_variants(self, response_data):
         print "\nProcessing request...\n"
-        variants_response = ZincRequestProcessor.process("variant_options", {
+        async_response = ZincRequestProcessor.process_async("variant_options", {
                     "client_token": self.client_token,
                     "retailer": self.retailer,
                     "product_url": self.product_url
                     })
+        asin = self.get_asin(self.product_url)
+        product_info = None
+        if asin != None:
+            product_info = AmazonDataFinder.get_amazon_data(asin)
+        variants_response = async_response.get_response()
         response_data["variant_options_response"] = variants_response
-        response_data["products"] = self.select_product_variants(variants_response)
+        response_data["products"] = self.select_product_variants(variants_response, product_info)
 
     def get_retailer_credentials(self, response_data):
         print "\nProcessing request...\n"
@@ -254,6 +263,7 @@ class ZincWizard(object):
         shipping_method_id = self.select_shipping_methods(
                 self.async_responses["shipping_response"].get_response())
         payment_method = {
+                "prefer_use_gift_balance": True,
                 "cc_token": self.retrieve_data("cc_token"),
                 "security_code": self.get_security_code()
                 }
@@ -308,6 +318,11 @@ class ZincWizard(object):
                 }
             with open("~/.zincrc", 'wb') as f:
                 f.write(json.dumps(data))
+
+    def get_asin(self, product_url):
+        match = re.search("/([a-zA-Z0-9]{10})(?:[/?]|$)", product_url)
+        if match:
+            return match.group(1)
 
     def print_indent(self, value):
         print "    ", value
@@ -373,6 +388,7 @@ class ZincWizard(object):
         for i in xrange(len(response["results"])):
             current = response["results"][i]
             descriptions.append(str(i) + ") " + current["title"])
+            asin = self.get_asin(current["product_url"])
             collector.append(current["product_url"])
 
         prompt = self.build_prompt(self.PROMPTS["select_product_name"], descriptions)
@@ -380,8 +396,9 @@ class ZincWizard(object):
                 ValidationHelpers.validate_number(len(descriptions)-1))
         return collector[int(collected_number)]
 
-    def select_product_variants(self, variants_response):
+    def select_product_variants(self, variants_response, product_info):
         descriptions = []
+        descriptions.append("\nDescription: " + product_info)
         product_ids = []
         if (len(variants_response["variant_options"]) > 1):
             for i in xrange(len(variants_response["variant_options"])):
@@ -422,6 +439,49 @@ class ZincWizard(object):
                 ValidationHelpers.validate_number(len(descriptions)-1))
         chosen_id = shipping_ids[int(description_number)]
         return chosen_id
+
+class AmazonDataFinder(object):
+    @classmethod
+    def get_amazon_data(klass, asin):
+        url = 'http://bulkbuyingtools.com/index.php'
+        values = {'name' : 'Michael Foord',
+            's' : 'cb3dd4783d787a78a2c9a4e18b86a426',
+            'asin_list' : asin}
+
+        # first request.. make the session key associated with the asin
+        data = urllib.urlencode(values)
+        req = urllib2.Request(url, data)
+        try:
+            response = urllib2.urlopen(req, timeout=2)
+            the_page = response.read()
+            loaded_page = re.search('This ASIN/ISBN number is invalid', \
+                the_page, flags=re.DOTALL|re.IGNORECASE)
+            if loaded_page is not None: # the ASIN was invalid
+                raise RuntimeError('loaded_page is None')
+        except:
+            return False
+
+        url = 'http://bulkbuyingtools.com/results.php?s=cb3dd4783d787a78a2c9a4e18b86a426'
+        req = urllib2.Request(url)
+        response = urllib2.urlopen(req)
+        the_page = response.read()
+
+        try:
+            ret_price = 0
+            ret_description = ''
+            price = re.search('<th>Image</th>.*?<th nowrap>Price:</th>\s*<td nowrap><b>\$(.*?)</b>', \
+                    the_page, flags=re.DOTALL|re.IGNORECASE)
+            if price:
+                ret_price = price.group(1)
+                description = re.search('<th>Image</th>.*?<li>([^<]*?)(<a.*?</a>)?</li>\s*</ul>', \
+                    the_page, flags=re.DOTALL|re.IGNORECASE)
+            if description:
+                ret_description = description.group(1)
+
+            return ret_description
+        except Exception, err:
+            return False
+
 
 if __name__ == '__main__':
     ZincWizard().start()
