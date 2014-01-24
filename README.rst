@@ -53,9 +53,9 @@ Then I could run the cli with the `-f` option pointing to this shipping address 
 
   python -m zinc -f /home/john/zinc_cli/examples/my_information.json
 
-You can include credit card information if you'd like, but we highly discourage it. It's not a good idea to leave your credit card information on your hard drive in plaintext.
+You can include credit card information if you'd like (we have an example in the `examples/sample_information.json` for reference), but we highly discourage you from including it. **It's a BAD idea to leave your credit card information on your hard drive in plaintext.**
 
-The `examples` folder has a number of example files that have fake prepopulated information that you can try. For example, if you wanted to place an Amazon order for clothing hangers with pre-populated shipping address and credit card information, you could do::
+The `examples` folder has an example file that has fake prepopulated information that you can try. You won't be able to complete a full purchase with it, though, because it's a fake credit card number. To run the wizard with the fake information, you can do::
 
   python -m zinc -f examples/sample_information.json
 
@@ -102,11 +102,11 @@ You can see an example of the simple order format in `examples/simple_order.json
     }
   }
 
-Once you've written this down into a json file, you can run::
+Once you've written this down into a json file, you can specify the `-s` option (for simple order) and you can run::
 
   python -m zinc -s -f examples/simple_order.json
 
-For making simple orders, you just need to prepopulate all the relevant information like shipping address, billing address, payment method information, etc. The `product_id` field corresponds to the Amazon Standard Identification Number (ASIN), which can be found in the Amazon product url.
+To make simple orders, you just need to prepopulate all the relevant information like shipping address, billing address, payment method information, etc. The `product_id` field corresponds to the Amazon Standard Identification Number (ASIN), which can be found in the Amazon product url. You will aslo need to set the `shipping_preference` field, explained in the next section.
 
 Shipping Methods
 ----------------
@@ -124,7 +124,8 @@ Instead of using the CLI, you can also import the `zinc` module into one of your
 
   from zinc import ZincSimpleOrder
 
-  result = ZincSimpleOrder().process({
+  simple_order = ZincSimpleOrder()
+  result = simple_order.process({
     "client_token": "public",
     "retailer": "amazon",
     "product_id": "B007JR5304",
@@ -162,7 +163,7 @@ Instead of using the CLI, you can also import the `zinc` module into one of your
 
   print result
 
-You can check out an example python script that processes orders from a python file concurrently. The script is in `examples/multi_process.py`. Check out the documentation in the source to see more ways that you can access the API.
+You can check out an example python script that processes orders from a python file concurrently. The script is in `examples/multi_process.py`.
 
 Contact
 =======
