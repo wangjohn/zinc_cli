@@ -226,7 +226,7 @@ class ZincWizard(object):
             term_width = InterfaceHelpers.get_terminal_size()[0]
             size = min(term_width/3,self.MAX_IHMAGE_WIDTH)
             call(["curl", "http://ihmage.com/" + asin + "?size="+str(size)])
-            print "Loading product description..."
+            print "\nLoading product information...\n"
             product_info = AmazonDataFinder.get_amazon_data(asin)
         variants_response = async_response.get_response()
         response_data["variant_options_response"] = variants_response
