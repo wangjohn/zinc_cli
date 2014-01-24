@@ -43,10 +43,10 @@ class ValidationHelpers(object):
     @classmethod
     def validate_boolean(klass):
         def validate(x):
-            if (x == "y" or x == "n"):
+            if (x == "y" or x == "n" or x == ""):
                 return True
             else:
-                print "You must enter either 'y' or 'n'"
+                print "You must enter either 'y', 'n', or nothing"
         return validate
 
     @classmethod
