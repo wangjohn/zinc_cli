@@ -24,7 +24,7 @@ This will bring up an interactive wizard interface that you can use the make Ama
 CLI Options
 ===========
 
-There are other ways of using the Zinc CLI. You can create a json file which will store your shipping and billing information. You can run `python -m zinc -h` to get help for the commands that you can use. For example, I might have the file `/home/john/zinc_cli/examples/my_information.json` with the following contents::
+There are other ways of using the Zinc CLI. You can create a json file which will store your shipping and billing information. You can run `python -m zinc -h` to get help for the commands that you can use. For example, I might have the file `~/.zincrc` with the following contents::
 
   {
     "shipping_address": {
@@ -51,7 +51,7 @@ There are other ways of using the Zinc CLI. You can create a json file which wil
 
 Then I could run the cli with the `-f` option pointing to this shipping address file so that I wouldn't have to enter my shipping address again in the interactive wizard::
 
-  python -m zinc -f /home/john/zinc_cli/examples/my_information.json
+  python -m zinc -f ~/.zincrc
 
 You can include credit card information if you'd like (we have an example in the `examples/sample_information.json` for reference), but we highly discourage you from including it. **It's a BAD idea to leave your credit card information on your hard drive in plaintext.**
 

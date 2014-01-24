@@ -111,7 +111,7 @@ class ZincWizard(object):
             "security_code": "Please input your card's CVV security code",
             "end_message": "\nYou've finished entering your credit card information!"
             },
-        "write_to_zincrc": "Would you like to write the information you just entered to a configuration file (.zincrc) so you can make orders more easily in the future? We'll only include your shipping address and a hashed credit card token, so no confidential information will be written to your hard drive. [y]/n"
+        "write_to_zincrc": "Would you like to write the information you just entered to a configuration file (~/.zincrc) so you can make orders more easily in the future? We'll only include your shipping address and a hashed credit card token, so no confidential information will be written to your hard drive. [y]/n"
         }
 
     def __init__(self,
@@ -132,7 +132,7 @@ class ZincWizard(object):
         self.shipping_address = None
 
     def get_stored_data(self, filename):
-        default_filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.zincrc")
+        default_filename = os.path.join(os.path.expanduser("~"), ".zincrc")
         if filename != None and os.path.isfile(filename):
             with open(filename, 'rb') as f:
                 return json.loads(f.read())
@@ -318,7 +318,7 @@ class ZincWizard(object):
         self.print_indent("Total:            %s" % format_price(components["total"]))
 
     def write_to_zincrc(self):
-        filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../.zincrc")
+        filename = os.path.join(os.path.expanduser("~"), ".zincrc")
         if not os.path.isfile(filename) and self.prompt_boolean(self.PROMPTS["write_to_zincrc"]):
             data = {
                 "shipping_address": self.shipping_address,
@@ -397,7 +397,7 @@ class ZincWizard(object):
             current = response["results"][i]
             new_description = str(i) + ") " + current["title"]
             if "price" in current:
-                new_description += ", " + current["price"]
+                new_description += ", " + format_price(current["price"])
             descriptions.append(new_description)
             asin = self.get_asin(current["product_url"])
             collector.append(current["product_url"])
