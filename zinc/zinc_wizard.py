@@ -113,7 +113,6 @@ class ZincWizard(object):
             },
         "write_to_zincrc": "Would you like to write the information you just entered to a configuration file (.zincrc) so you can make orders more easily in the future? We'll only include your shipping address and a hashed credit card token, so no confidential information will be written to your hard drive. [y]/n"
         }
-    MAX_IHMAGE_WIDTH = 50
 
     def __init__(self,
             retailer = "amazon",
@@ -220,9 +219,7 @@ class ZincWizard(object):
         asin = self.get_asin(self.product_url)
         product_info = None
         if asin != None:
-            term_width = InterfaceHelpers.get_terminal_size()[0]
-            size = min(term_width/3,self.MAX_IHMAGE_WIDTH)
-            call(["curl", "http://ihmage.com/" + asin + "?size="+str(size)])
+            InterfaceHelpers.print_ihmage_image(asin)
             print "\nLoading product information...\n"
             product_info = AmazonDataFinder.get_amazon_data(asin)
         variants_response = async_response.get_response()
@@ -494,6 +491,8 @@ class AmazonDataFinder(object):
             return False
 
 class InterfaceHelpers(object):
+    MAX_IHMAGE_WIDTH = 50
+
     @classmethod
     def get_terminal_size(klass):
         import os
@@ -518,6 +517,12 @@ class InterfaceHelpers(object):
             ### Use get(key[, default]) instead of a try/catch
             cr = (env.get('LINES', 25), env.get('COLUMNS', 80))
         return int(cr[1]), int(cr[0])
+
+    @classmethod
+    def print_ihmage_image(klass, asin):
+        term_width = InterfaceHelpers.get_terminal_size()[0]
+        size = min(term_width/3, InterfaceHelpers.MAX_IHMAGE_WIDTH)
+        call(["curl", "http://ihmage.com/" + asin + "?size="+str(size)])
 
 if __name__ == '__main__':
     ZincWizard().start()
