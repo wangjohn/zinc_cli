@@ -1,12 +1,12 @@
 from setuptools import setup
 import os
 
-README = os.path.join(os.path.dirname(__file__), 'README.txt')
+README = os.path.join(os.path.dirname(__file__), 'README.rst')
 long_description = open(README).read() + 'nn'
 
 setup(
     name='Zinc',
-    version='0.1.6',
+    version='0.1.7',
     author='John Wang',
     author_email='john@zinc.io',
     packages=['zinc'],
