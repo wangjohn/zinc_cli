@@ -40,7 +40,7 @@ class ZincRequestProcessor(object):
     def process_async(klass, request_type, payload,
             zinc_base_url="https://api.zinc.io/v0"):
         processor = ZincAbstractProcessor()
-        return processor.post_request(payload, request_type)
+        return processor.post_request(payload, request_type, async=True)
 
 class ZincAbstractProcessor(object):
     def __init__(self, zinc_base_url="https://api.zinc.io/v0", 
@@ -89,7 +89,7 @@ class ZincAbstractProcessor(object):
         if result_json["_type"] == "error" and result_json["code"] == "request_processing":
             return False
         elif result_json["_type"] == "error":
-            raise ZincError(result)
+            raise ZincError(result_json)
         else:
             return result_json
 

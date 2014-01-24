@@ -84,7 +84,7 @@ class ZincWizard(object):
             "password": "Please enter your Amazon password"
             },
         "shipping_address": {
-            "start_message": "\nNow we'd like to get your shipping information. Don't worry if you make a mistake, we'll ask you to verify the correctness of your address and you can retype it if you'd like.",
+            "start_message": "\nNow we'd like to get your shipping information. Don't worry if you make a mistake,\nwe'll ask you to verify the correctness of your address so you can retype it if you'd like.",
             "end_message": "\nYou've finished entering your shipping address!"
             },
         "address": {
@@ -151,17 +151,21 @@ class ZincWizard(object):
     def start(self):
         print WELCOME_BANNER
         try:
-            self.get_product_name(self.response_data)
-            self.get_product_variants(self.response_data)
-            self.get_retailer_credentials(self.response_data)
-            self.get_shipping_methods(self.response_data)
-            self.get_store_card(self.response_data)
-            self.get_review_order(self.response_data)
-            self.get_place_order(self.response_data)
+            self.start_interactive_session()
         except ZincError as e:
+            print "\nUnfortunately there seemed to be an error"
             print e
             print "\nRestarting...\n"
             self.start()
+
+    def start_interactive_session(self):
+        self.get_product_name(self.response_data)
+        self.get_product_variants(self.response_data)
+        self.get_retailer_credentials(self.response_data)
+        self.get_shipping_methods(self.response_data)
+        self.get_store_card(self.response_data)
+        self.get_review_order(self.response_data)
+        self.get_place_order(self.response_data)
 
     def prompt(self, prompt, validation=None, max_attempts=3, password=False):
         attempts = 0
