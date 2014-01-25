@@ -423,7 +423,8 @@ class ZincWizard(object):
 
     def select_product_variants(self, variants_response, product_info):
         descriptions = []
-        descriptions.append("\nDescription: " + product_info)
+        if product_info:
+            descriptions.append("\nDescription: " + product_info)
         product_ids = []
         if (len(variants_response["variant_options"]) > 1):
             for i in xrange(len(variants_response["variant_options"])):
