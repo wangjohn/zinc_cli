@@ -89,15 +89,14 @@ class ZincWizard(object):
             "end_message": "\nYou've finished entering your shipping address!"
             },
         "address": {
-            "first_name": "Please input your first name:",
-            "last_name": "Please input your last name:",
-            "address_line1": "Please input the first line of your shipping address:",
-            "address_line2": "Please input the second line of your shipping address: (optional)",
+            "name": "Please input your full name:",
+            "address_line1": "Please input the first line of your address:",
+            "address_line2": "Please input the second line of your address: (optional)",
             "city": "Please input your city:",
             "state": "Please input your state (e.g. CA, MA, etc.):",
             "zip_code": "Please input your zip code:",
             "country": "Please input your country (e.g. US):",
-            "confirmation_message": "Is this your correct shipping address? [y]/n"
+            "confirmation_message": "Is this your correct address? [y]/n"
             },
         "billing_address" : {
             "start_message": "\nIs your billing address the same as your shipping address? [y]/n",
@@ -105,7 +104,7 @@ class ZincWizard(object):
             },
         "credit_card": {
             "start_message": "\nThe retailer requires a credit card for this purchase.",
-            "number": "Please input your credit card number",
+            "number": "Please input your credit card number (e.g. 5555555555554444)",
             "expiration_month": "Please input your credit card expiration month (e.g. 03)",
             "expiration_year": "Please input your credit card expiration year (e.g. 2017)",
             "security_code": "Please input your card's CVV security code",
@@ -360,12 +359,18 @@ class ZincWizard(object):
 
     def get_address(self, filetype):
         address = {}
-        for label in ["first_name", "last_name", "address_line1", "address_line2",
+        for label in ["name", "address_line1", "address_line2",
                 "city", "state", "zip_code", "country"]:
-            address[label] = self.prompt(self.PROMPTS["address"][label])
+            if label == "name":
+                full_name = self.prompt(self.PROMPTS["address"][label])
+                (first_name, last_name) = self.parse_name(full_name)
+                address["first_name"] = first_name
+                address["last_name"] = last_name
+            else:
+                address[label] = self.prompt(self.PROMPTS["address"][label])
 
         print "\nYou typed the following:\n"
-        self.print_indent("    %s %s" % (address["first_name"], address["last_name"]))
+        self.print_indent("    %s %s" % (address["name"]))
         self.print_indent("    %s" % (address["address_line1"]))
         self.print_indent("    %s" % (address["address_line2"]))
         self.print_indent("    %s, %s %s" % (address["city"], address["state"], address["zip_code"]))
@@ -377,6 +382,15 @@ class ZincWizard(object):
             return address
         else:
             return self.get_address(filetype)
+
+    def parse_name(self, full_name):
+        split = full_name.split(" ")
+        if len(split) > 1:
+            first_name = " ".join(split[:(-1)])
+            last_name = split[-1]
+            return (first_name, last_name)
+        else:
+            return (".", full_name)
 
     def build_prompt(self, base_prompt, description_list):
         prompt = base_prompt + "\n"

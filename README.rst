@@ -13,9 +13,9 @@ Quick Start
 
 For starting quickly, you can either clone the repo or use the pip python package manager.::
 
-  sudo pip install zinc
+  pip install zinc
 
-Once you've installed the Zinc module, you can start using it like so::
+(You might need to use :code:`sudo pip install zinc` if you get an error). Once you've installed the Zinc module, you can start using it like so::
 
   python -m zinc
 
