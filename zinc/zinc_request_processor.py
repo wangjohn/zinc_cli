@@ -12,17 +12,26 @@ class ZincError(Exception):
     pass
 
 class ZincAsyncRequest(object):
-    def __init__(self, url, request_id, abstract_processor, start_time):
+    def __init__(self, url, request_id, abstract_processor, start_time, retries=2):
         self.url = url
         self.request_id = request_id
         self.abstract_processor = abstract_processor
         self.start_time = start_time
+        self.retries = retries
 
     def finished(self):
         return self.abstract_processor.finished(self.url, self.request_id)
 
     def get_response(self):
-        return self.abstract_processor.wait_for_response(self.url, self.request_id, self.start_time)
+        try:
+            return self.abstract_processor.wait_for_response(self.url, self.request_id, self.start_time)
+        except ZincError as e:
+            if self.retries > 0:
+                self.retries -= 1
+                self.get_response()
+            else:
+                raise e
+
 
 class ZincRequestProcessor(object):
     """Processor for Zinc API requests.
@@ -38,15 +47,26 @@ class ZincRequestProcessor(object):
     @classmethod
     def process(klass, request_type, payload,
             zinc_base_url="https://api.zinc.io/v0",
-            polling_interval=1.0):
+            polling_interval=1.0,
+            retries=2):
         processor = ZincAbstractProcessor()
-        return processor.post_request(payload, request_type)
+        try:
+            return processor.post_request(payload, request_type)
+        except ZincError as e:
+            if retries > 0:
+                return ZincRequestProcessor.process(request_type, payload,
+                        zinc_base_url, polling_interval, retries-1)
+            else:
+                raise e
 
     @classmethod
     def process_async(klass, request_type, payload,
-            zinc_base_url="https://api.zinc.io/v0"):
+            zinc_base_url="https://api.zinc.io/v0",
+            retries=2):
         processor = ZincAbstractProcessor()
-        return processor.post_request(payload, request_type, async=True)
+        async_request = processor.post_request(payload, request_type, async=True)
+        async_request.retries = retries
+        return async_request
 
 class ZincAbstractProcessor(object):
     """
