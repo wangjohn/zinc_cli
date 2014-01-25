@@ -370,7 +370,7 @@ class ZincWizard(object):
                 address[label] = self.prompt(self.PROMPTS["address"][label])
 
         print "\nYou typed the following:\n"
-        self.print_indent("    %s %s" % (address["name"]))
+        self.print_indent("    %s %s" % (address["first_name"], address["last_name"]))
         self.print_indent("    %s" % (address["address_line1"]))
         self.print_indent("    %s" % (address["address_line2"]))
         self.print_indent("    %s, %s %s" % (address["city"], address["state"], address["zip_code"]))

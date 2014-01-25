@@ -6,7 +6,7 @@ long_description = open(README).read() + 'nn'
 
 setup(
     name='Zinc',
-    version='0.1.14',
+    version='0.1.15',
     author='John Wang',
     author_email='john@zinc.io',
     packages=['zinc'],
