@@ -24,7 +24,7 @@ This will bring up an interactive wizard interface that you can use the make Ama
 CLI Options
 ===========
 
-There are other ways of using the Zinc CLI. You can create a json file which will store your shipping and billing information. You can run `python -m zinc -h` to get help for the commands that you can use. For example, I might have the file `~/.zincrc` with the following contents::
+There are other ways of using the Zinc CLI. You can create a json file which will store your shipping and billing information. You can run :code:`python -m zinc -h` to get help for the commands that you can use. For example, I might have the file :code:`~/.zincrc` with the following contents::
 
   {
     "shipping_address": {
@@ -49,13 +49,13 @@ There are other ways of using the Zinc CLI. You can create a json file which wil
     }
   }
 
-Then I could run the cli with the `-f` option pointing to this shipping address file so that I wouldn't have to enter my shipping address again in the interactive wizard::
+Then I could run the cli with the :code:`-f` option pointing to this shipping address file so that I wouldn't have to enter my shipping address again in the interactive wizard::
 
   python -m zinc -f ~/.zincrc
 
-You can include credit card information if you'd like (we have an example in the `examples/sample_information.json` for reference), but we highly discourage you from including it. **It's a BAD idea to leave your credit card information on your hard drive in plaintext.**
+You can include credit card information if you'd like (we have an example in the :code:`examples/sample_information.json` for reference), but we highly discourage you from including it. **It's a BAD idea to leave your credit card information on your hard drive in plaintext.**
 
-The `examples` folder has an example file that has fake prepopulated information that you can try. You won't be able to complete a full purchase with it, though, because it's a fake credit card number. To run the wizard with the fake information, you can do::
+The :code:`examples` folder has an example file that has fake prepopulated information that you can try. You won't be able to complete a full purchase with it, though, because it's a fake credit card number. To run the wizard with the fake information, you can do::
 
   python -m zinc -f examples/sample_information.json
 
@@ -64,7 +64,7 @@ Simple Order
 
 If you don't like going through the process of making orders through the interactive cli, you can also use the Zinc simple order module. This is a python module which allows you to make orders by pre-specifying all of your required fields in a python dictionary or a json file.
 
-You can see an example of the simple order format in `examples/simple_order.json`, reproduced below::
+You can see an example of the simple order format in :code:`examples/simple_order.json`, reproduced below::
 
   {
     "client_token": "public",
@@ -102,25 +102,25 @@ You can see an example of the simple order format in `examples/simple_order.json
     }
   }
 
-Once you've written this down into a json file, you can specify the `-s` option (for simple order) and you can run::
+Once you've written this down into a json file, you can specify the :code:`-s` option (for simple order) and you can run::
 
   python -m zinc -s -f examples/simple_order.json
 
-To make simple orders, you just need to prepopulate all the relevant information like shipping address, billing address, payment method information, etc. The `product_id` field corresponds to the `Amazon Standard Identification Number (ASIN) <http://en.wikipedia.org/wiki/Amazon_Standard_Identification_Number>`_, which can be found in the Amazon product url. You will aslo need to set the `shipping_preference` field, explained in the next section.
+To make simple orders, you just need to prepopulate all the relevant information like shipping address, billing address, payment method information, etc. The :code:`product_id` field corresponds to the `Amazon Standard Identification Number (ASIN) <http://en.wikipedia.org/wiki/Amazon_Standard_Identification_Number>`_, which can be found in the Amazon product url. You will aslo need to set the :code:`shipping_preference` field, explained in the next section.
 
 Shipping Methods
 ----------------
 
-For the `shipping_preference` item, you can set different preferences for how you want your items shipped. The available preferences are:
+For the :code:`shipping_preference` item, you can set different preferences for how you want your items shipped. The available preferences are:
 
-- `cheapest`: Select the cheapest shipping method available
-- `second`: Select second day shipping
-- `standard`: Select the standard shipping method
+- :code:`cheapest`: Select the cheapest shipping method available
+- :code:`second`: Select second day shipping
+- :code:`standard`: Select the standard shipping method
 
 Python Usage
 ============
 
-Instead of using the CLI, you can also import the `zinc` module into one of your python scripts. This allows you to customize and automate your Amazon purchases. You can use the `ZincSimpleOrder` class to easily access the Zinc API. You can check out the `examples/simple_order_example.py` script to see how to use it (reproduced below)::
+Instead of using the CLI, you can also import the :code:`zinc` module into one of your python scripts. This allows you to customize and automate your Amazon purchases. You can use the :code:`ZincSimpleOrder` class to easily access the Zinc API. You can check out the :code:`examples/simple_order_example.py` script to see how to use it (reproduced below)::
 
   from zinc import ZincSimpleOrder
 
@@ -163,12 +163,12 @@ Instead of using the CLI, you can also import the `zinc` module into one of your
 
   print result
 
-You can check out an example python script that processes orders from a python file concurrently. The script is in `examples/multi_process.py`.
+You can check out an example python script that processes orders from a python file concurrently. The script is in :code:`examples/multi_process.py`.
 
 Advanced Python Usage
 ---------------------
 
-If you'd like to get more control over your API, you can use the `ZincRequestProcessor` class to make requests. The `process` method for the `ZincRequestProcessor` class allows you to place any call to the Zinc API and wait for the response. For example, you could do something like the following::
+If you'd like to get more control over your API, you can use the :code:`ZincRequestProcessor` class to make requests. The :code:`process` method for the :code:`ZincRequestProcessor` class allows you to place any call to the Zinc API and wait for the response. For example, you could do something like the following::
 
   from zinc import ZincRequestProcessor
   payload = {
@@ -179,7 +179,7 @@ If you'd like to get more control over your API, you can use the `ZincRequestPro
   result = ZincRequestProcessor.process("variant_options", payload)
   print result
 
-The `process` method returns a python dictionary with the Zinc API's response to your request. Running the previous script would print out the following::
+The :code:`process` method returns a python dictionary with the Zinc API's response to your request. Running the previous script would print out the following::
 
   {
     'product_url': 'http://www.amazon.com/gp/product/0394800761',
@@ -195,7 +195,7 @@ The `process` method returns a python dictionary with the Zinc API's response to
     'retailer': 'amazon'
   }
 
-Check the `Zinc API documentation <http://zinc.io/docs/api.html>`_ to see all of the possible API calls. An example that uses the `ZincRequestProcessor` class to place an entire order is given in `examples/request_processor_example.py`.
+Check the `Zinc API documentation <http://zinc.io/docs/api.html>`_ to see all of the possible API calls. An example that uses the :code:`ZincRequestProcessor` class to place an entire order is given in :code:`examples/request_processor_example.py`.
 
 Contact
 =======
