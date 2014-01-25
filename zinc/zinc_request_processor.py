@@ -23,15 +23,7 @@ class ZincAsyncRequest(object):
         return self.abstract_processor.finished(self.url, self.request_id)
 
     def get_response(self):
-        try:
-            return self.abstract_processor.wait_for_response(self.url, self.request_id, self.start_time)
-        except ZincError as e:
-            if self.retries > 0:
-                self.retries -= 1
-                self.get_response()
-            else:
-                raise e
-
+        return self.abstract_processor.wait_for_response(self.url, self.request_id, self.start_time)
 
 class ZincRequestProcessor(object):
     """Processor for Zinc API requests.
@@ -61,12 +53,9 @@ class ZincRequestProcessor(object):
 
     @classmethod
     def process_async(klass, request_type, payload,
-            zinc_base_url="https://api.zinc.io/v0",
-            retries=2):
+            zinc_base_url="https://api.zinc.io/v0"):
         processor = ZincAbstractProcessor()
-        async_request = processor.post_request(payload, request_type, async=True)
-        async_request.retries = retries
-        return async_request
+        return processor.post_request(payload, request_type, async=True)
 
 class ZincAbstractProcessor(object):
     """

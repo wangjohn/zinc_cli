@@ -409,7 +409,7 @@ class ZincWizard(object):
         collector = []
         for i in xrange(len(response["results"])):
             current = response["results"][i]
-            new_description = str(i) + ") " + current["title"]
+            new_description = str(i) + ") " + current["title"].encode("ascii", "replace")
             if "price" in current:
                 new_description += ", " + format_price(current["price"])
             descriptions.append(new_description)
