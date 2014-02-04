@@ -116,7 +116,8 @@ class ZincSimpleOrder(object):
                 order_details["shipping_preference"], shipping_methods_response)
 
     def _use_default_payment(self, order_details):
-        ("use_default_payment_method" in order_details and \
-                        order_details["use_default_payment_method"])
+        return ("payment_method" in order_details and
+                "use_default" in order_details["payment_method"] and
+                order_details["payment_method"]["use_default"])
 
 

@@ -45,8 +45,8 @@ class ZincConcurrentSimpleOrders(object):
         return self.pool.map(process_single, orders)
 
 if __name__ == '__main__':
-    filename = "multiple_orders.json"
-    failed_filename = "multiple_orders_failed.json"
+    filename = "/home/john/zinc/zinc_cli/homejoy/homejoy_order1.json"
+    failed_filename = "/home/john/zinc/zinc_cli/homejoy/homejoy_order1_failed.json"
     with open(filename, 'rb') as f:
         orders = json.loads(f.read())["orders"]
     print "Number of orders:", len(orders)
@@ -55,6 +55,7 @@ if __name__ == '__main__':
     failed_orders = []
     for result in results:
         if result.failed():
+            print result.response
             failed_orders.append(result.request)
 
     print "Number of failed orders:", len(failed_orders)
