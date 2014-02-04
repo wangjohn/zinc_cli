@@ -39,7 +39,7 @@ class ZincSimpleOrder(object):
             try:
                 shipping_methods_response = self.processor.post_request(
                         self._shipping_methods_details(order_details), "shipping_methods")
-                if not self._use_default_payment(order_details):
+                if self._use_default_payment(order_details):
                     store_card_response = None
                 else:
                     store_card_response = self.processor.post_request(
