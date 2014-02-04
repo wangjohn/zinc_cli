@@ -23,7 +23,7 @@ result = simple_order.process({
       "address_line1": "77 Massachusetts Avenue",
       "address_line2": "",
       "zip_code": "02139",
-      "city": "Cambridge",·
+      "city": "Cambridge",
       "state": "MA",
       "country": "US"
     },
