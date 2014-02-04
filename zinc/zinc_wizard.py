@@ -53,6 +53,7 @@ class ValidationHelpers(object):
     @classmethod
     def validate_credit_card(klass):
         def validate(card_number):
+            card_number = card_number.replace(' ','')
             digit_sum = 0
             num_digits = len(card_number)
             oddeven = num_digits & 1
