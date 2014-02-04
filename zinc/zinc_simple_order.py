@@ -39,8 +39,11 @@ class ZincSimpleOrder(object):
             try:
                 shipping_methods_response = self.processor.post_request(
                         self._shipping_methods_details(order_details), "shipping_methods")
-                store_card_response = self.processor.post_request(
-                        self._store_card_details(order_details), "store_card")
+                if not self._use_default_payment(order_details):
+                    store_card_response = None
+                else:
+                    store_card_response = self.processor.post_request(
+                            self._store_card_details(order_details), "store_card")
                 review_order_response = self.processor.post_request(
                         self._review_order_details(order_details, shipping_methods_response,
                             store_card_response), "review_order")
@@ -75,6 +78,14 @@ class ZincSimpleOrder(object):
 
     def _review_order_details(self, order_details, shipping_methods_response,
             store_card_response):
+        if self._use_default_payment(order_details):
+            payment_method = {"use_default": True}
+        else:
+            payment_method = {
+                    "security_code": order_details["payment_method"]["security_code"],
+                    "cc_token": store_card_response["cc_token"]
+                    }
+
         return {
                 "client_token": order_details["client_token"],
                 "retailer": order_details["retailer"],
@@ -83,10 +94,7 @@ class ZincSimpleOrder(object):
                 "is_gift": order_details["is_gift"],
                 "shipping_method_id": self._shipping_method_id(order_details,
                     shipping_methods_response),
-                "payment_method": {
-                    "security_code": order_details["payment_method"]["security_code"],
-                    "cc_token": store_card_response["cc_token"]
-                    },
+                "payment_method": payment_method,
                 "customer_email": order_details["customer_email"]
                 }
 
@@ -106,3 +114,9 @@ class ZincSimpleOrder(object):
     def _shipping_method_id(self, order_details, shipping_methods_response):
         return self.shipping_method_factory.shipping_method(
                 order_details["shipping_preference"], shipping_methods_response)
+
+    def _use_default_payment(self, order_details):
+        ("use_default_payment_method" in order_details and \
+                        order_details["use_default_payment_method"])
+
+
