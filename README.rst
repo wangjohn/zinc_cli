@@ -1,6 +1,10 @@
 Welcome to Zinc
 ===============
 
+NOTE: The CLI is deprecated. For the most up-to-date ways to access the Zinc API, please see the `Zinc API documentation <http://zinc.io/docs>`_
+
+===============
+
 `Zinc <http://zinc.io/>`_ is an API for making e-commerce purchases. This package allows you to easily access the API and make purchases on Amazon through the command line. It also offers wrappers around the Zinc API that can be used easily in python code.
 
 The module features:
@@ -195,7 +199,7 @@ The :code:`process` method returns a python dictionary with the Zinc API's respo
     'retailer': 'amazon'
   }
 
-Check the `Zinc API documentation <http://zinc.io/docs/api.html>`_ to see all of the possible API calls. An example that uses the :code:`ZincRequestProcessor` class to place an entire order is given in :code:`examples/request_processor_example.py`.
+Check the `Zinc API documentation <http://zinc.io/docs>`_ to see all of the possible API calls. An example that uses the :code:`ZincRequestProcessor` class to place an entire order is given in :code:`examples/request_processor_example.py`.
 
 Contact
 =======

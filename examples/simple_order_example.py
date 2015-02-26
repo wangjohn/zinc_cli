@@ -23,11 +23,11 @@ result = simple_order.process({
       "address_line1": "77 Massachusetts Avenue",
       "address_line2": "",
       "zip_code": "02139",
-      "city": "Cambridge",·
+      "city": "Cambridge",
       "state": "MA",
       "country": "US"
     },
-    "is_gift": false,
+    "is_gift": False,
     "customer_email": "benbitdiddle@gmail.com",
     "shipping_preference": "cheapest",
     "payment_method": {
@@ -42,7 +42,7 @@ result = simple_order.process({
       "address_line1": "84 Massachusetts Ave",
       "address_line2": "",
       "zip_code": "02139",
-      "city": "Cambridge",·
+      "city": "Cambridge",
       "state": "MA",
       "country": "US"
     }

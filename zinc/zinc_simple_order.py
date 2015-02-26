@@ -3,9 +3,11 @@ from zinc_request_processor import ZincAbstractProcessor, ZincTimeoutError, \
 from shipping_method_factory import ShippingMethodFactory
 import json
 
+ZINC_API_URL = "http://localhost:5000/v0"
+
 class ZincSimpleOrder(object):
     def __init__(self,
-            zinc_base_url="https://api.zinc.io/v0",
+            zinc_base_url=ZINC_API_URL,
             max_tries = 3,
             polling_interval= 1.0,
             request_timeout = 180,
@@ -64,12 +66,14 @@ class ZincSimpleOrder(object):
                 "client_token": order_details["client_token"],
                 "retailer": order_details["retailer"],
                 "shipping_address": order_details["shipping_address"],
+                "retailer_credentials": order_details["retailer_credentials"],
                 "products": self._products(order_details)
                 }
 
     def _store_card_details(self, order_details):
         return {
                 "client_token": order_details["client_token"],
+                "retailer_credentials": order_details["retailer_credentials"],
                 "billing_address": order_details["billing_address"],
                 "number": order_details["payment_method"]["number"],
                 "expiration_month": order_details["payment_method"]["expiration_month"],
@@ -88,6 +92,7 @@ class ZincSimpleOrder(object):
 
         return {
                 "client_token": order_details["client_token"],
+                "retailer_credentials": order_details["retailer_credentials"],
                 "retailer": order_details["retailer"],
                 "products": self._products(order_details),
                 "shipping_address": order_details["shipping_address"],

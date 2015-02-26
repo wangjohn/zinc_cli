@@ -2,6 +2,8 @@ import requests
 import time
 import json
 
+ZINC_API_URL = "http://localhost:5000/v0"
+
 class MaximumRequestRetriesExceeded(Exception):
     pass
 
@@ -36,9 +38,10 @@ class ZincRequestProcessor(object):
     +process_async+ method will return a ZincAsyncRequest object which can
     be used to get the response later.
     """
+
     @classmethod
     def process(klass, request_type, payload,
-            zinc_base_url="https://api.zinc.io/v0",
+            zinc_base_url=ZINC_API_URL,
             polling_interval=1.0,
             retries=2):
         processor = ZincAbstractProcessor()
@@ -53,7 +56,7 @@ class ZincRequestProcessor(object):
 
     @classmethod
     def process_async(klass, request_type, payload,
-            zinc_base_url="https://api.zinc.io/v0"):
+            zinc_base_url=ZINC_API_URL):
         processor = ZincAbstractProcessor()
         return processor.post_request(payload, request_type, async=True)
 
@@ -80,7 +83,7 @@ class ZincAbstractProcessor(object):
     For more examples using the ZincAbstractProcessor, see the "examples/"
     directory.
     """
-    def __init__(self, zinc_base_url="https://api.zinc.io/v0", 
+    def __init__(self, zinc_base_url=ZINC_API_URL, 
             polling_interval = 1.0,
             request_timeout = 180,
             get_request_timeout = 5.0,

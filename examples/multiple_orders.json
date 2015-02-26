@@ -11,8 +11,8 @@
         "address_line1": "77 Massachusetts Avenue",
         "address_line2": "",
         "zip_code": "02139",
-        "city": "Cambridge",·
-          "state": "MA",
+        "city": "Cambridge",
+        "state": "MA",
         "country": "US"
       },
       "is_gift": false,
@@ -30,8 +30,8 @@
         "address_line1": "84 Massachusetts Ave",
         "address_line2": "",
         "zip_code": "02139",
-        "city": "Cambridge",·
-          "state": "MA",
+        "city": "Cambridge",
+        "state": "MA",
         "country": "US"
       }
     },
@@ -46,8 +46,8 @@
         "address_line1": "77 Massachusetts Avenue",
         "address_line2": "",
         "zip_code": "02139",
-        "city": "Cambridge",·
-          "state": "MA",
+        "city": "Cambridge",
+        "state": "MA",
         "country": "US"
       },
       "is_gift": false,
@@ -65,8 +65,8 @@
         "address_line1": "84 Massachusetts Ave",
         "address_line2": "",
         "zip_code": "02139",
-        "city": "Cambridge",·
-          "state": "MA",
+        "city": "Cambridge",
+        "state": "MA",
         "country": "US"
       }
     }
